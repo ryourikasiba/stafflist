@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>株式会社料理かしば 従業員管理＆労働条件通知書システム</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @media print {
@@ -17,7 +16,6 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
 
-    <!-- 🔒 ログイン画面のコンテナ -->
     <div id="loginScreen" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-50 no-print">
         <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full border border-gray-100 text-center">
             <div class="text-emerald-700 text-3xl font-bold mb-2">株式会社料理かしば</div>
@@ -33,9 +31,7 @@
         </div>
     </div>
 
-    <!-- 🖥️ メインコンテンツ（初期状態は隠す） -->
     <div id="mainContent" class="max-w-4xl mx-auto p-6 hidden">
-        <!-- 🟢 緑色を基調とした会社名ヘッダー -->
         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 border-b-2 border-emerald-600 pb-3 no-print">
             <div>
                 <div class="text-emerald-700 font-black text-xl tracking-wider">株式会社料理かしば</div>
@@ -46,14 +42,11 @@
             </a>
         </div>
 
-        <!-- 入力フォーム -->
         <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 no-print">
             <h2 class="text-xl font-semibold mb-4 text-gray-700">従業員情報の入力</h2>
             <form id="employeeForm" class="space-y-6">
-                <!-- フォーム識別用の隠しID（編集用） -->
                 <input type="hidden" id="empFirebaseId">
                 
-                <!-- 1. 基本情報 -->
                 <div>
                     <h3 class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-2">1. 基本情報</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -80,9 +73,8 @@
                     </div>
                 </div>
 
-                <!-- 2. 配属・契約情報 -->
                 <div>
-                    <h3 class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-2">2. 配属・契約情報（法改正対応）</h3>
+                    <h3 class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-2">2. 配属・契約情報</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-medium text-gray-600">所属会社</label>
@@ -102,7 +94,6 @@
                             <input type="text" id="workPlace" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="本社工場">
                         </div>
                         
-                        <!-- 🗂️ 所属職種（複数選択チェックボックス） -->
                         <div>
                             <label class="block text-xs font-bold text-emerald-800 mb-1">所属（担当職種・複数選択可）</label>
                             <div class="grid grid-cols-3 gap-2 bg-gray-50 p-2.5 border rounded-md">
@@ -119,14 +110,19 @@
                             <label class="block text-xs font-medium text-gray-600">【2024法改正対応】就業場所・業務の「変更の範囲」</label>
                             <input type="text" id="changeScope" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="就業場所：変更なし ／ 従事すべき業務：変更なし">
                         </div>
+                        
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600">契約期間・更新ルール</label>
-                            <textarea id="contractPeriod" rows="2" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none">期間の定めなし（正社員・無期契約）</textarea>
+                            <div class="flex justify-between items-center">
+                                <label class="block text-xs font-medium text-gray-600">契約期間（3/6 〜 翌年3/5）</label>
+                                <button type="button" onclick="autoNextYearPeriod()" class="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold py-1 px-3 rounded-md border border-emerald-300 transition cursor-pointer">
+                                    🔄 契約期間を翌年に更新
+                                </button>
+                            </div>
+                            <textarea id="contractPeriod" rows="2" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none font-medium bg-emerald-50/30">令和8年3月6日 〜 令和9年3月5日</textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- 3. 労働条件 -->
                 <div>
                     <h3 class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-2">3. 労働条件</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-md bg-gray-50 mb-4">
@@ -159,7 +155,7 @@
                             <input type="text" id="salary" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="月給 250,000円">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600">諸手当・賃金支払いルール（締日・支払日、割増率）</label>
+                            <label class="block text-xs font-medium text-gray-600">諸手当・賃金支払いルール</label>
                             <textarea id="allowances" rows="4" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none">【手当】通勤手当（実費支給・上限月2万円）
 【締切・支払】毎月20日締め・当月25日払（口座振込）
 【割増賃金】時間外労働：25%増、深夜労働：25%増、法定休日：35%増</textarea>
@@ -194,7 +190,6 @@
             </form>
         </div>
 
-        <!-- 下：労働条件通知書プレビュー -->
         <div id="previewContainer" class="mt-12 bg-white p-8 rounded-lg shadow-md border border-gray-300 relative hidden">
             <div class="flex justify-between items-center mb-6 no-print">
                 <h2 class="text-xl font-bold text-gray-800">労働条件通知書プレビュー</h2>
@@ -238,7 +233,6 @@
         </div>
     </div>
 
-    <!-- Firebase SDK の読み込みと設定 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -256,10 +250,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 🔐 パスワードチェック処理
         function checkPassword() {
             const pass = document.getElementById('loginPassword').value;
-            // 簡易的な共通ログインパスワードを設定（必要に応じて変更してください）
             if (pass === "kashiba2026") { 
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainContent').classList.remove('hidden');
@@ -269,10 +261,35 @@
             }
         }
 
+        // 🔄 ボタンクリックで契約期間を「翌年」に更新するシンプルな仕組み
+        function autoNextYearPeriod() {
+            const field = document.getElementById('contractPeriod');
+            const currentText = field.value;
+
+            // 文字列から「令和〇年」や「20XX年」の数字部分を抽出
+            const match = currentText.match(/(令和|西暦|20)?(\d+)年/);
+            
+            if (match) {
+                const prefix = match[1] || ""; // 「令和」などの文字
+                const currentYear = parseInt(match[2], 10); // 現在の「年」の数字
+                const nextYear = currentYear + 1;
+                const afterNextYear = currentYear + 2;
+
+                // 新しいテキストを生成して上書き
+                if (currentText.includes("令和")) {
+                    field.value = `令和${nextYear}年3月6日 〜 令和${afterNextYear}年3月5日`;
+                } else {
+                    field.value = `${nextYear}年3月6日 〜 ${afterNextYear}年3月5日`;
+                }
+            } else {
+                // 万一、文字が崩れていて数字が読めなかった場合の初期値
+                field.value = "令和9年3月6日 〜 令和10年3月5日";
+            }
+        }
+
         document.getElementById('currentDate').innerText = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
 
         window.onload = function() {
-            // パスワードセッションチェック
             if (sessionStorage.getItem('isLoggedIn') === 'true') {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainContent').classList.remove('hidden');
@@ -291,7 +308,6 @@
                 document.getElementById('hireDate').value = emp.hireDate || '';
                 document.getElementById('workPlace').value = emp.place || '';
                 
-                // チェックボックスの復元
                 const roles = emp.roles || [];
                 document.querySelectorAll('input[name="empRoles"]').forEach(cb => {
                     cb.checked = roles.includes(cb.value);
@@ -320,7 +336,6 @@
             const existingId = document.getElementById('empFirebaseId').value;
             const docId = existingId ? existingId : "emp_" + Date.now();
 
-            // 選択された所属職種を取得
             const selectedRoles = [];
             document.querySelectorAll('input[name="empRoles"]:checked').forEach(cb => {
                 selectedRoles.push(cb.value);
@@ -336,7 +351,7 @@
                 dept: document.getElementById('empDept').value,
                 hireDate: document.getElementById('hireDate').value,
                 place: document.getElementById('workPlace').value,
-                roles: selectedRoles, // 配列データ
+                roles: selectedRoles,
                 changeScope: document.getElementById('changeScope').value,
                 period: document.getElementById('contractPeriod').value,
                 hours1: document.getElementById('workHours1').value,
@@ -363,7 +378,6 @@
                 previewNotice(emp);
                 alert("Firebaseクラウド名簿に安全に保存・更新しました！");
             } catch (error) {
-                console.error("Error writing document: ", error);
                 alert("保存に失敗しました: " + error.message);
             }
         }
@@ -375,10 +389,8 @@
             document.getElementById('viewPeriod').innerText = emp.period;
             document.getElementById('viewPlace').innerText = emp.place;
             
-            // 通知書用の所属表示
             const rolesStr = emp.roles && emp.roles.length > 0 ? emp.roles.join('・') : '未設定';
             document.getElementById('viewRoles').innerText = `【職種: ${rolesStr}】`;
-
             document.getElementById('viewChangeScope').innerText = `（※ 将来的な変更の範囲： ${emp.changeScope} ）`;
             
             const hoursListContainer = document.getElementById('viewHoursList');
@@ -398,13 +410,13 @@
             document.getElementById('previewContainer').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Enterキーでもログインできるように設定
         document.getElementById('loginPassword').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') checkPassword();
         });
 
         window.saveEmployee = saveEmployee;
         window.checkPassword = checkPassword;
+        window.autoNextYearPeriod = autoNextYearPeriod;
     </script>
 </body>
 </html>
