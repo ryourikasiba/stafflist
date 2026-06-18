@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>株式会社料理かしば 従業員管理＆労働条件通知書システム</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @media print {
@@ -16,6 +17,7 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
 
+    <!-- 🔒 ログイン画面 -->
     <div id="loginScreen" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-50 no-print">
         <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full border border-gray-100 text-center">
             <div class="text-emerald-700 text-3xl font-bold mb-2">株式会社料理かしば</div>
@@ -31,6 +33,7 @@
         </div>
     </div>
 
+    <!-- 🖥️ メインコンテンツ -->
     <div id="mainContent" class="max-w-4xl mx-auto p-6 hidden">
         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 border-b-2 border-emerald-600 pb-3 no-print">
             <div>
@@ -42,16 +45,18 @@
             </a>
         </div>
 
+        <!-- 入力フォーム -->
         <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 no-print">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">従業員情報の入力</h2>
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">従業員情報の入力（労働条件通知書 必須項目対応）</h2>
             <form id="employeeForm" class="space-y-6">
                 <input type="hidden" id="empFirebaseId">
                 
+                <!-- 1. 基本情報 -->
                 <div>
                     <h3 class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-2">1. 基本情報</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-medium text-gray-600">氏名</label>
+                            <label class="block text-xs font-medium text-gray-600">氏名 <span class="text-red-500">*</span></label>
                             <input type="text" id="empName" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="山田 太郎">
                         </div>
                         <div>
@@ -73,11 +78,12 @@
                     </div>
                 </div>
 
+                <!-- 2. 配属・契約情報 -->
                 <div>
-                    <h3 class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-2">2. 配属・契約情報</h3>
+                    <h3 class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-2">2. 配属・契約情報（法改正対応項目）</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-medium text-gray-600">所属会社</label>
+                            <label class="block text-xs font-medium text-gray-600">所属会社（明示義務：会社名）</label>
                             <select id="empDept" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none font-medium bg-emerald-50">
                                 <option value="株式会社料理かしば">株式会社料理かしば</option>
                                 <option value="株式会社山下食品">株式会社山下食品</option>
@@ -86,16 +92,17 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-600">採用日</label>
+                            <label class="block text-xs font-medium text-gray-600">採用日（雇入れの日） <span class="text-red-500">*</span></label>
                             <input type="date" id="hireDate" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-600">就業場所</label>
+                            <label class="block text-xs font-medium text-gray-600">就業の場所（雇入れ直後）</label>
                             <input type="text" id="workPlace" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="本社工場">
                         </div>
                         
+                        <!-- 🗂️ 所属職種 -->
                         <div>
-                            <label class="block text-xs font-bold text-emerald-800 mb-1">所属（担当職種・複数選択可）</label>
+                            <label class="block text-xs font-bold text-emerald-800 mb-1">従事すべき業務（雇入れ直後）</label>
                             <div class="grid grid-cols-3 gap-2 bg-gray-50 p-2.5 border rounded-md">
                                 <label class="inline-flex items-center text-xs font-medium cursor-pointer"><input type="checkbox" name="empRoles" value="配送" class="mr-1 accent-emerald-600"> 配送</label>
                                 <label class="inline-flex items-center text-xs font-medium cursor-pointer"><input type="checkbox" name="empRoles" value="盛付" class="mr-1 accent-emerald-600"> 盛付</label>
@@ -106,27 +113,33 @@
                             </div>
                         </div>
 
+                        <!-- ⚠️ 2024年4月法改正：変更の範囲の明示義務 -->
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600">【2024法改正対応】就業場所・業務の「変更の範囲」</label>
-                            <input type="text" id="changeScope" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="就業場所：変更なし ／ 従事すべき業務：変更なし">
+                            <label class="block text-xs font-bold text-amber-800">【2024法改正必須】就業場所・業務の「変更の範囲」</label>
+                            <input type="text" id="changeScope" required class="w-full mt-1 p-2 border border-amber-300 rounded-md focus:ring-2 focus:ring-amber-400 outline-none bg-amber-50/50" value="就業場所：会社の定める場所 ／ 従事すべき業務：会社の定める業務（原則変更なし）">
                         </div>
                         
+                        <!-- 🔄 契約期間（当年〜翌年自動設定エリア） -->
                         <div class="md:col-span-2">
                             <div class="flex justify-between items-center">
-                                <label class="block text-xs font-medium text-gray-600">契約期間（3/6 〜 翌年3/5）</label>
-                                <button type="button" onclick="autoNextYearPeriod()" class="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold py-1 px-3 rounded-md border border-emerald-300 transition cursor-pointer">
-                                    🔄 契約期間を翌年に更新
+                                <label class="block text-xs font-bold text-gray-700">契約期間（明示義務：期間・更新上限の有無）</label>
+                                <!-- 当年〜翌年自動更新ボタン -->
+                                <button type="button" onclick="setCurrentYearPeriod()" class="text-xs bg-amber-600 hover:bg-amber-700 text-white font-bold py-1 px-3 rounded-md transition cursor-pointer shadow-xs">
+                                    🔄 当年の契約期間（3/6〜翌年3/5）に設定
                                 </button>
                             </div>
-                            <textarea id="contractPeriod" rows="2" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none font-medium bg-emerald-50/30">令和8年3月6日 〜 令和9年3月5日</textarea>
+                            <textarea id="contractPeriod" rows="3" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none font-medium bg-emerald-50/30">令和8年3月6日 〜 令和9年3月5日
+【更新の有無】契約期間満了時の業務量、従事する労働者の勤務成績、態度、能力、会社の経営状況等により判断し、契約を更新することがある。
+【更新上限】更新回数の上限および通算契約期間の上限なし。</textarea>
                         </div>
                     </div>
                 </div>
 
+                <!-- 3. 労働条件 -->
                 <div>
-                    <h3 class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-2">3. 労働条件</h3>
+                    <h3 class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-2">3. 労働条件（就業時刻・休日・賃金・退職）</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-md bg-gray-50 mb-4">
-                        <div class="md:col-span-2"><p class="text-xs font-bold text-gray-500">【就業時刻】</p></div>
+                        <div class="md:col-span-2"><p class="text-xs font-bold text-gray-500">【労働時間（明示義務：始業・終業時刻、休憩、シフトルール）】</p></div>
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-600">就業時間 パターン①</label>
                             <input type="text" id="workHours1" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-emerald-400" value="08:00 〜 17:00 (休憩60分)">
@@ -147,26 +160,26 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-medium text-gray-600">休日</label>
-                            <input type="text" id="holidays" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="シフトカレンダーによる（月8日〜10日）、年次有給休暇は法定通り付与">
+                            <label class="block text-xs font-medium text-gray-600">休日・休暇（明示義務：休日、有給休暇、特別休暇）</label>
+                            <input type="text" id="holidays" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="シフトカレンダーによる（月8日〜10日休）、年次有給休暇は雇入れ日から6ヶ月継続勤務後、法定通り付与。">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-600">基本給（月給/時給）</label>
-                            <input type="text" id="salary" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="月給 250,000円">
+                            <label class="block text-xs font-medium text-gray-600">基本給（明示義務：賃金の決定、計算方法）</label>
+                            <input type="text" id="salary" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="月給 250,000円 （または時給 1,100円）">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600">諸手当・賃金支払いルール</label>
-                            <textarea id="allowances" rows="4" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none">【手当】通勤手当（実費支給・上限月2万円）
-【締切・支払】毎月20日締め・当月25日払（口座振込）
-【割増賃金】時間外労働：25%増、深夜労働：25%増、法定休日：35%増</textarea>
+                            <label class="block text-xs font-medium text-gray-600">諸手当・賃金の締切・支払日・割増率（全て明示義務）</label>
+                            <textarea id="allowances" rows="4" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none">【諸手当】通勤手当（実費支給・上限月2万円）、役職手当
+【賃金締切日・支払日】毎月20日締め・当月25日支払（口座振込による）
+【割増賃金率】時間外：25%増、深夜（22時〜5時）：25%増、法定休日：35%増</textarea>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-600">昇給・賞与・退職金</label>
-                            <input type="text" id="bonus" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="昇給：あり、賞与：年2回、退職金：なし">
+                            <label class="block text-xs font-medium text-gray-600">昇給・賞与・退職金（有無の明示義務）</label>
+                            <input type="text" id="bonus" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="昇給：あり（年1回査定）、賞与：あり（年2回、業績による）、退職金：なし">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600">退職に関する事項</label>
-                            <input type="text" id="retirement" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="定年制（60歳・再雇用制度あり）、自己都合退職は1ヶ月前までに届出、解雇の手続きは就業規則の定めに従う">
+                            <label class="block text-xs font-medium text-gray-600">退職・解雇に関する事項（明示義務：事由、手続き、定年など）</label>
+                            <input type="text" id="retirement" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="自己都合退職は1ヶ月前までに届出を要する。定年制（60歳、希望者は65歳まで再雇用）。解雇の事由および手続きは、就業規則第〇条に定めるところによる。">
                         </div>
                         
                         <div class="md:col-span-2 bg-yellow-50 p-3 rounded-md border border-yellow-200">
@@ -190,6 +203,7 @@
             </form>
         </div>
 
+        <!-- 労働条件通知書プレビュー -->
         <div id="previewContainer" class="mt-12 bg-white p-8 rounded-lg shadow-md border border-gray-300 relative hidden">
             <div class="flex justify-between items-center mb-6 no-print">
                 <h2 class="text-xl font-bold text-gray-800">労働条件通知書プレビュー</h2>
@@ -211,7 +225,7 @@
                 <p class="mb-6">あなたとの労働契約について、その労働条件は下記のとおりです。</p>
                 <table class="w-full border-collapse border border-black mb-6">
                     <tbody>
-                        <tr><td class="border border-black p-3 bg-gray-50 w-1/4 font-bold">契約期間</td><td id="viewPeriod" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
+                        <tr><td class="border border-black p-3 bg-gray-50 w-1/4 font-bold">契約期間・更新上限</td><td id="viewPeriod" class="border border-black p-3 whitespace-pre-wrap font-medium"></td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">就業の場所</td><td class="border border-black p-3"><span id="viewPlace" class="font-bold"></span><br><span id="viewChangeScope" class="text-xs text-gray-600"></span></td></tr>
                         <tr>
                             <td class="border border-black p-3 bg-gray-50 font-bold">従事すべき業務（所属）</td>
@@ -224,15 +238,16 @@
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">休日・休暇</td><td id="viewHolidays" class="border border-black p-3"></td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">賃金に関する事項</td><td class="border border-black p-3"><div class="mb-2">【基本給】 <span id="viewSalary" class="font-bold"></span></div><div id="viewAllowances" class="text-gray-700 text-xs whitespace-pre-wrap leading-relaxed"></div></td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">昇給・賞与・退職金</td><td id="viewBonus" class="border border-black p-3"></td></tr>
-                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">退職に関する事項</td><td id="viewRetirement" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
+                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">退職・解雇に関する事項</td><td id="viewRetirement" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">備考</td><td id="viewNotes" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
                     </tbody>
                 </table>
-                <p class="text-xs text-right text-gray-500">※本書面は労働基準法第15条第1項に基づく書面の交付を兼ねています。</p>
+                <p class="text-xs text-right text-gray-500">※本書面は労働基準法第15条第1項、および改正労働基準法施行規則等に基づく書面の交付を兼ねています。</p>
             </div>
         </div>
     </div>
 
+    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -261,30 +276,23 @@
             }
         }
 
-        // 🔄 ボタンクリックで契約期間を「翌年」に更新するシンプルな仕組み
-        function autoNextYearPeriod() {
+        // 🔄 クリックした「現在の西暦・和暦」から「当年3/6 〜 翌年3/5」に一発リセットする関数
+        function setCurrentYearPeriod() {
             const field = document.getElementById('contractPeriod');
-            const currentText = field.value;
-
-            // 文字列から「令和〇年」や「20XX年」の数字部分を抽出
-            const match = currentText.match(/(令和|西暦|20)?(\d+)年/);
             
-            if (match) {
-                const prefix = match[1] || ""; // 「令和」などの文字
-                const currentYear = parseInt(match[2], 10); // 現在の「年」の数字
-                const nextYear = currentYear + 1;
-                const afterNextYear = currentYear + 2;
+            // ボタンがクリックされた時点の「現在の日付」を取得
+            const now = new Date();
+            const currentYear = now.getFullYear(); // 例: 2026
 
-                // 新しいテキストを生成して上書き
-                if (currentText.includes("令和")) {
-                    field.value = `令和${nextYear}年3月6日 〜 令和${afterNextYear}年3月5日`;
-                } else {
-                    field.value = `${nextYear}年3月6日 〜 ${afterNextYear}年3月5日`;
-                }
-            } else {
-                // 万一、文字が崩れていて数字が読めなかった場合の初期値
-                field.value = "令和9年3月6日 〜 令和10年3月5日";
-            }
+            // 西暦2026年は「令和8年」
+            const reiwaYear = currentYear - 2018; 
+            const nextReiwaYear = reiwaYear + 1;
+
+            // 法令上必須とされる更新判断基準と上限の有無の文言
+            const lawText = `\n【更新の有無】契約期間満了時の業務量、従事する労働者の勤務成績、態度、能力、会社の経営状況等により判断し、契約を更新することがある。\n【更新上限】更新回数の上限および通算契約期間の上限なし。`;
+
+            // テキストエリアに「当年3/6 〜 翌年3/5」の和暦と必須記載内容を設定
+            field.value = `令和${reiwaYear}年3月6日 〜 令和${nextReiwaYear}年3月5日` + lawText;
         }
 
         document.getElementById('currentDate').innerText = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -416,7 +424,7 @@
 
         window.saveEmployee = saveEmployee;
         window.checkPassword = checkPassword;
-        window.autoNextYearPeriod = autoNextYearPeriod;
+        window.setCurrentYearPeriod = setCurrentYearPeriod;
     </script>
 </body>
 </html>
