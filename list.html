@@ -8,9 +8,27 @@
 </head>
 <body class="bg-gray-50 text-gray-800 p-6">
 
-    <div class="max-w-6xl mx-auto">
+    <!-- 🔒 ログイン画面のコンテナ -->
+    <div id="loginScreen" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full border border-gray-100 text-center">
+            <div class="text-emerald-700 text-3xl font-bold mb-2">株式会社料理かしば</div>
+            <h2 class="text-xl font-semibold text-gray-700 mb-6">名簿一覧システム ログイン</h2>
+            <div class="mb-4 text-left">
+                <label class="block text-xs font-bold text-gray-500 mb-1">パスワードを入力してください</label>
+                <input type="password" id="loginPassword" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none font-mono text-center text-xl tracking-widest" placeholder="••••••••">
+            </div>
+            <button onclick="checkPassword()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition cursor-pointer shadow-md">
+                認証してログイン
+            </button>
+            <p id="loginError" class="text-red-500 text-xs mt-3 hidden font-bold">⚠️ パスワードが正しくありません</p>
+        </div>
+    </div>
+
+    <!-- 🖥️ メインコンテンツ（初期状態は隠す） -->
+    <div id="mainContent" class="max-w-6xl mx-auto hidden">
         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
             <div>
+                <div class="text-emerald-700 font-black text-lg tracking-wider">株式会社料理かしば</div>
                 <h1 class="text-3xl font-bold text-gray-900">クラウド従業員名簿</h1>
                 <p class="text-sm text-gray-500 mt-1">Firebaseからリアルタイムに同期された名簿リストです。</p>
             </div>
@@ -24,8 +42,9 @@
             </div>
         </div>
 
+        <!-- 在籍者名簿 / 退職者フォルダー タブ -->
         <div class="flex border-b border-gray-200 mb-6 space-x-2">
-            <button id="tabActive" onclick="switchTab('active')" class="py-2 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 focus:outline-none transition">
+            <button id="tabActive" onclick="switchTab('active')" class="py-2 px-6 font-bold text-sm border-b-2 border-emerald-600 text-emerald-600 focus:outline-none transition">
                 🟢 在籍中の従業員名簿 (<span id="countActive">0</span>人)
             </button>
             <button id="tabRetired" onclick="switchTab('retired')" class="py-2 px-6 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-600 focus:outline-none transition">
@@ -33,32 +52,34 @@
             </button>
         </div>
 
+        <!-- 検索・フィルターエリア -->
         <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label class="block text-xs font-bold text-gray-600 mb-1">🔍 氏名検索</label>
-                <input type="text" id="filterName" placeholder="名前を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="text" id="filterName" placeholder="名前を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-emerald-400">
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-600 mb-1">🏢 会社名で絞り込み</label>
-                <input type="text" id="filterDept" placeholder="会社名を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="text" id="filterDept" placeholder="会社名を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-emerald-400">
             </div>
             <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">📍 就業場所で絞り込み</label>
-                <input type="text" id="filterPlace" placeholder="工場・店舗名を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                <label class="block text-xs font-bold text-gray-600 mb-1">📍 所属職種・就業場所で絞り込み</label>
+                <input type="text" id="filterPlace" placeholder="配送、調理、工場名など..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-emerald-400">
             </div>
         </div>
 
+        <!-- 名簿テーブル -->
         <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
                         <tr class="bg-gray-100 border-b border-gray-200 text-gray-700 font-bold">
                             <th class="p-4">氏名</th>
-                            <th class="p-4">所属会社</th>
-                            <th class="p-4">就業場所</th>
+                            <th class="p-4">連絡先 / メール</th>
+                            <th class="p-4">所属会社 / 採用日</th>
+                            <th class="p-4">場所 / 所属職種</th>
                             <th class="p-4">基本給</th>
-                            <th class="p-4">契約期間</th>
-                            <th class="p-4 text-center">ステータス変更</th>
+                            <th class="p-4 text-center">ステータス</th>
                             <th class="p-4 text-center">操作</th>
                         </tr>
                     </thead>
@@ -73,11 +94,11 @@
         </div>
     </div>
 
+    <!-- Firebase SDK の読み込みと設定 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // あなたのFirebaseプロジェクトの設定情報
         const firebaseConfig = {
             apiKey: "AIzaSyCHFT7qYSxmqMP7E8YT_-qrhgxAD6ZH5h4",
             authDomain: "stafflist-534ec.firebaseapp.com",
@@ -94,7 +115,24 @@
         let allEmployees = []; 
         let currentTab = 'active';
 
-        // Firebaseのデータをリアルタイム監視
+        function checkPassword() {
+            const pass = document.getElementById('loginPassword').value;
+            if (pass === "kashiba2026") { 
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                sessionStorage.setItem('isLoggedIn', 'true');
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        window.onload = function() {
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+            }
+        }
+
         onSnapshot(collection(db, "employees"), (snapshot) => {
             allEmployees = [];
             snapshot.forEach((doc) => {
@@ -103,10 +141,8 @@
             renderTable(); 
         }, (error) => {
             console.error("Firebaseデータ読み込みエラー: ", error);
-            document.getElementById('employeeTableBody').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500">データの読み込みに失敗しました。Firestoreのルール設定（テストモード）を確認してください。</td></tr>`;
         });
 
-        // 現在画面（タブ＋検索条件）に表示されている従業員を返す関数
         function getFilteredEmployees() {
             const fName = document.getElementById('filterName').value.toLowerCase();
             const fDept = document.getElementById('filterDept').value.toLowerCase();
@@ -114,10 +150,12 @@
 
             return allEmployees.filter(emp => {
                 const empStatus = emp.status || 'active';
+                const rolesStr = (emp.roles || []).join(',');
+                
                 return empStatus === currentTab &&
                        (emp.name || '').toLowerCase().includes(fName) &&
                        (emp.dept || '').toLowerCase().includes(fDept) &&
-                       (emp.place || '').toLowerCase().includes(fPlace);
+                       ((emp.place || '').toLowerCase().includes(fPlace) || rolesStr.toLowerCase().includes(fPlace));
             });
         }
 
@@ -142,19 +180,27 @@
 
             filtered.forEach(emp => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-blue-50/50 cursor-pointer transition";
+                tr.className = "hover:bg-emerald-50/40 cursor-pointer transition";
                 tr.onclick = () => selectEmployee(emp);
                 
                 const statusButton = (emp.status === 'retired') 
-                    ? `<button onclick="event.stopPropagation(); toggleStatus('${emp.id}', 'active')" class="text-xs text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-1 rounded">名簿へ戻す</button>`
+                    ? `<button onclick="event.stopPropagation(); toggleStatus('${emp.id}', 'active')" class="text-xs text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-1 rounded">名簿へ戻す</button>`
                     : `<button onclick="event.stopPropagation(); toggleStatus('${emp.id}', 'retired')" class="text-xs text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-2 py-1 rounded">退職処理</button>`;
 
+                const rolesBadges = (emp.roles || []).map(r => `<span class="bg-emerald-100 text-emerald-800 text-xs px-1.5 py-0.5 rounded border border-emerald-200 mr-1">${r}</span>`).join('');
+
                 tr.innerHTML = `
-                    <td class="p-4 font-bold text-gray-900">${emp.name}</td>
-                    <td class="p-4"><span class="px-2 py-1 bg-blue-50 text-blue-700 rounded-sm font-medium text-xs border border-blue-100">${emp.dept}</span></td>
-                    <td class="p-4 text-gray-600">${emp.place}</td>
+                    <td class="p-4 font-bold text-gray-900">${emp.name}<br><span class="text-xs text-gray-400 font-normal">🎂 ${emp.birth || '未設定'}</span></td>
+                    <td class="p-4 text-xs text-gray-600 leading-normal">📞 ${emp.phone || ''}<br>✉️ ${emp.email || ''}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-sm font-semibold text-xs border border-gray-200">${emp.dept}</span>
+                        <div class="text-xs text-gray-500 mt-1">🗓️ 採用: ${emp.hireDate || '未入力'}</div>
+                    </td>
+                    <td class="p-4">
+                        <div class="font-medium text-gray-700 mb-1">${emp.place}</div>
+                        <div class="flex flex-wrap gap-1">${rolesBadges || '<span class="text-xs text-gray-400">職種未選択</span>'}</div>
+                    </td>
                     <td class="p-4 font-semibold text-emerald-700">${emp.salary}</td>
-                    <td class="p-4 text-gray-500 text-xs max-w-xs truncate">${emp.period}</td>
                     <td class="p-4 text-center">${statusButton}</td>
                     <td class="p-4 text-center" onclick="event.stopPropagation();">
                         <button onclick="deleteEmp('${emp.id}')" class="text-xs font-semibold text-red-600 hover:text-red-800 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-md border border-gray-200 transition">
@@ -166,7 +212,6 @@
             });
         }
 
-        // 📥 CSV生成＆ダウンロード処理
         function downloadCSV() {
             const targets = getFilteredEmployees();
             if (targets.length === 0) {
@@ -174,16 +219,18 @@
                 return;
             }
 
-            // CSVのヘッダー行（Excelで化けないように項目を設定）
-            const headers = ["氏名", "生年月日", "住所", "所属会社", "就業場所", "変更の範囲", "契約期間", "就業時間1", "就業時間2", "就業時間3", "勤務補足", "休日", "基本給", "諸手当", "昇給賞与", "退職事項", "備考", "ステータス"];
+            const headers = ["氏名", "生年月日", "電話番号", "メールアドレス", "住所", "所属会社", "採用日", "就業場所", "所属職種", "変更の範囲", "契約期間", "就業時間1", "就業時間2", "就業時間3", "勤務補足", "休日", "基本給", "諸手当", "昇給賞与", "退職事項", "備考", "ステータス"];
             
-            // データをCSVの行データに変換（値をダブルクォーテーションで囲む）
             const rows = targets.map(emp => [
                 emp.name || "",
                 emp.birth || "",
+                emp.phone || "",
+                emp.email || "",
                 emp.address || "",
                 emp.dept || "",
+                emp.hireDate || "",
                 emp.place || "",
+                (emp.roles || []).join("/"),
                 emp.changeScope || "",
                 emp.period || "",
                 emp.hours1 || "",
@@ -197,23 +244,19 @@
                 emp.retirement || "",
                 emp.notes || "",
                 emp.status === "retired" ? "退職" : "在籍"
-            ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(",")); // 値の中のダブルクォーテーションをエスケープ
+            ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(","));
 
-            // ヘッダーと中身を結合
             const csvContent = [headers.join(","), ...rows].join("\n");
-
-            // Excelで開いたときの文字化けを防ぐための「BOM（Byte Order Mark）」を追加
             const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
             const blob = new Blob([bom, csvContent], { type: "text/csv;charset=utf-8;" });
             
-            // ダウンロードリンクを生成してクリックさせる
             const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
             const label = currentTab === "active" ? "在籍者名簿" : "退職者名簿";
-            const dateStr = new Date().toISOString().slice(0,10); // YYYY-MM-DD フォーマット
+            const dateStr = new Date().toISOString().slice(0,10);
             
             link.setAttribute("href", url);
-            link.setAttribute("download", `従業員名簿_${label}_${dateStr}.csv`);
+            link.setAttribute("download", `株式会社料理かしば_従業員名簿_${label}_${dateStr}.csv`);
             link.style.visibility = "hidden";
             document.body.appendChild(link);
             link.click();
@@ -229,7 +272,7 @@
         }
 
         async function deleteEmp(id) {
-            if(confirm('このデータをFirebaseクラウドから完全に削除しますか？\n他の端末のデータからも完全に消去されます。')) {
+            if(confirm('このデータを完全に削除しますか？')) {
                 try {
                     await deleteDoc(doc(db, "employees", id));
                 } catch (error) {
@@ -248,7 +291,7 @@
             const tabActive = document.getElementById('tabActive');
             const tabRetired = document.getElementById('tabRetired');
             if (tabName === 'active') {
-                tabActive.className = "py-2 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 focus:outline-none transition";
+                tabActive.className = "py-2 px-6 font-bold text-sm border-b-2 border-emerald-600 text-emerald-600 focus:outline-none transition";
                 tabRetired.className = "py-2 px-6 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-600 focus:outline-none transition";
             } else {
                 tabActive.className = "py-2 px-6 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-600 focus:outline-none transition";
@@ -260,11 +303,16 @@
         document.getElementById('filterName').addEventListener('input', renderTable);
         document.getElementById('filterDept').addEventListener('input', renderTable);
         document.getElementById('filterPlace').addEventListener('input', renderTable);
+        
+        document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkPassword();
+        });
 
         window.switchTab = switchTab;
         window.toggleStatus = toggleStatus;
         window.deleteEmp = deleteEmp;
         window.downloadCSV = downloadCSV;
+        window.checkPassword = checkPassword;
     </script>
 </body>
 </html>
