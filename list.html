@@ -11,8 +11,8 @@
     <div class="max-w-6xl mx-auto">
         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">従業員名簿 ＆ 退職者管理</h1>
-                <p class="text-sm text-gray-500 mt-1">在籍者リストと退職者フォルダーを切り替えて管理できます。</p>
+                <h1 class="text-3xl font-bold text-gray-900">クラウド従業員名簿</h1>
+                <p class="text-sm text-gray-500 mt-1">Firebaseからリアルタイムに同期された名簿リストです。</p>
             </div>
             <a href="index.html" class="mt-4 md:mt-0 inline-flex items-center bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition shadow-xs">
                 ⬅ 新規登録・入力画面へ戻る
@@ -31,15 +31,15 @@
         <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label class="block text-xs font-bold text-gray-600 mb-1">🔍 氏名検索</label>
-                <input type="text" id="filterName" oninput="renderTable()" placeholder="名前を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="text" id="filterName" placeholder="名前を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-600 mb-1">🏢 会社名で絞り込み</label>
-                <input type="text" id="filterDept" oninput="renderTable()" placeholder="会社名を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="text" id="filterDept" placeholder="会社名を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-600 mb-1">📍 就業場所で絞り込み</label>
-                <input type="text" id="filterPlace" oninput="renderTable()" placeholder="工場・店舗名を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="text" id="filterPlace" placeholder="工場・店舗名を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
             </div>
         </div>
 
@@ -58,7 +58,8 @@
                         </tr>
                     </thead>
                     <tbody id="employeeTableBody" class="divide-y divide-gray-100">
-                        </tbody>
+                        <tr><td colspan="7" class="p-8 text-center text-gray-400">クラウドからデータを読み込み中...</td></tr>
+                    </tbody>
                 </table>
             </div>
             <div id="noDataMessage" class="p-8 text-center text-gray-400 hidden">
@@ -67,54 +68,62 @@
         </div>
     </div>
 
-    <script>
-        let employees = JSON.parse(localStorage.getItem('employees')) || [];
-        let currentTab = 'active'; // 現在開いているタブ（activeかretired）
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        function switchTab(tabName) {
-            currentTab = tabName;
-            
-            // タブの見た目を切り替え
-            const tabActive = document.getElementById('tabActive');
-            const tabRetired = document.getElementById('tabRetired');
-            
-            if (tabName === 'active') {
-                tabActive.className = "py-2 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 focus:outline-none transition";
-                tabRetired.className = "py-2 px-6 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-600 focus:outline-none transition";
-            } else {
-                tabActive.className = "py-2 px-6 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-600 focus:outline-none transition";
-                tabRetired.className = "py-2 px-6 font-bold text-sm border-b-2 border-red-600 text-red-600 focus:outline-none transition";
-            }
-            
-            renderTable();
-        }
+        // ⚠️ あとでここに Firebaseの設定情報（Config）を貼り付けます（index.htmlと同じもの）
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-        function updateCounts() {
-            // 在籍・退職のリアルタイム人数カウント
-            const activeCount = employees.filter(emp => (emp.status || 'active') === 'active').length;
-            const retiredCount = employees.filter(emp => emp.status === 'retired').length;
-            
-            document.getElementById('countActive').innerText = activeCount;
-            document.getElementById('countRetired').innerText = retiredCount;
-        }
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
+        let allEmployees = []; // Firebaseから取得した元データ全体
+        let currentTab = 'active';
+
+        // 1. Firebaseのデータをリアルタイム監視＆自動取得
+        onSnapshot(collection(db, "employees"), (snapshot) => {
+            allEmployees = [];
+            snapshot.forEach((doc) => {
+                allEmployees.push(doc.data());
+            });
+            renderTable(); // データが更新されたら再描画
+        }, (error) => {
+            console.error("Firebaseデータ読み込みエラー: ", error);
+            document.getElementById('employeeTableBody').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500">データの読み込みに失敗しました。Firestoreのルール設定を確認してください。</td></tr>`;
+        });
+
+        // テーブルと件数の描画
         function renderTable() {
-            updateCounts();
             const tbody = document.getElementById('employeeTableBody');
             const noData = document.getElementById('noDataMessage');
             tbody.innerHTML = '';
 
+            // 各種フィルター条件
             const fName = document.getElementById('filterName').value.toLowerCase();
             const fDept = document.getElementById('filterDept').value.toLowerCase();
             const fPlace = document.getElementById('filterPlace').value.toLowerCase();
 
-            // 現在選択しているタブ（在籍・退職）かつ検索条件に合致するデータを抽出
-            const filtered = employees.filter(emp => {
+            // 件数カウントのリアルタイム更新
+            const activeCount = allEmployees.filter(emp => (emp.status || 'active') === 'active').length;
+            const retiredCount = allEmployees.filter(emp => emp.status === 'retired').length;
+            document.getElementById('countActive').innerText = activeCount;
+            document.getElementById('countRetired').innerText = retiredCount;
+
+            // タブかつフィルター条件で抽出
+            const filtered = allEmployees.filter(emp => {
                 const empStatus = emp.status || 'active';
                 return empStatus === currentTab &&
-                       emp.name.toLowerCase().includes(fName) &&
-                       emp.dept.toLowerCase().includes(fDept) &&
-                       emp.place.toLowerCase().includes(fPlace);
+                       (emp.name || '').toLowerCase().includes(fName) &&
+                       (emp.dept || '').toLowerCase().includes(fDept) &&
+                       (emp.place || '').toLowerCase().includes(fPlace);
             });
 
             if (filtered.length === 0) {
@@ -129,10 +138,9 @@
                 tr.className = "hover:bg-blue-50/50 cursor-pointer transition";
                 tr.onclick = () => selectEmployee(emp);
                 
-                // ステータス（在籍・退職）に応じた変更ボタンの出し分け
                 const statusButton = (emp.status === 'retired') 
-                    ? `<button onclick="event.stopPropagation(); toggleStatus(${emp.id}, 'active')" class="text-xs text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-1 rounded">名簿へ戻す</button>`
-                    : `<button onclick="event.stopPropagation(); toggleStatus(${emp.id}, 'retired')" class="text-xs text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-2 py-1 rounded">退職処理</button>`;
+                    ? `<button onclick="event.stopPropagation(); toggleStatus('${emp.id}', 'active')" class="text-xs text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-1 rounded">名簿へ戻す</button>`
+                    : `<button onclick="event.stopPropagation(); toggleStatus('${emp.id}', 'retired')" class="text-xs text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-2 py-1 rounded">退職処理</button>`;
 
                 tr.innerHTML = `
                     <td class="p-4 font-bold text-gray-900">${emp.name}</td>
@@ -142,7 +150,7 @@
                     <td class="p-4 text-gray-500 text-xs max-w-xs truncate">${emp.period}</td>
                     <td class="p-4 text-center">${statusButton}</td>
                     <td class="p-4 text-center" onclick="event.stopPropagation();">
-                        <button onclick="deleteEmp(${emp.id})" class="text-xs font-semibold text-red-600 hover:text-red-800 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-md border border-gray-200 transition">
+                        <button onclick="deleteEmp('${emp.id}')" class="text-xs font-semibold text-red-600 hover:text-red-800 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-md border border-gray-200 transition">
                             削除
                         </button>
                     </td>
@@ -151,13 +159,23 @@
             });
         }
 
-        // ワンクリックで在籍⇔退職ステータスを切り替える処理
-        function toggleStatus(id, newStatus) {
-            const emp = employees.find(e => e.id === id);
-            if (emp) {
-                emp.status = newStatus;
-                localStorage.setItem('employees', JSON.stringify(employees));
-                renderTable();
+        // クラウド上のステータスを直接書き換える
+        async function toggleStatus(id, newStatus) {
+            try {
+                await updateDoc(doc(db, "employees", id), { status: newStatus });
+            } catch (error) {
+                alert("ステータス変更に失敗しました: " + error.message);
+            }
+        }
+
+        // クラウド上のデータを完全に削除
+        async function deleteEmp(id) {
+            if(confirm('このデータをFirebaseクラウドから完全に削除しますか？\n他の端末のデータからも完全に消去されます。')) {
+                try {
+                    await deleteDoc(doc(db, "employees", id));
+                } catch (error) {
+                    alert("削除に失敗しました: " + error.message);
+                }
             }
         }
 
@@ -166,16 +184,29 @@
             window.location.href = 'index.html';
         }
 
-        function deleteEmp(id) {
-            if(confirm('このデータを完全に削除しますか？\n（フォルダー移動ではなく、データそのものが消去されます）')) {
-                employees = employees.filter(emp => emp.id !== id);
-                localStorage.setItem('employees', JSON.stringify(employees));
-                renderTable();
+        function switchTab(tabName) {
+            currentTab = tabName;
+            const tabActive = document.getElementById('tabActive');
+            const tabRetired = document.getElementById('tabRetired');
+            if (tabName === 'active') {
+                tabActive.className = "py-2 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 focus:outline-none transition";
+                tabRetired.className = "py-2 px-6 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-600 focus:outline-none transition";
+            } else {
+                tabActive.className = "py-2 px-6 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-600 focus:outline-none transition";
+                tabRetired.className = "py-2 px-6 font-bold text-sm border-b-2 border-red-600 text-red-600 focus:outline-none transition";
             }
+            renderTable();
         }
 
-        // 初期表示
-        renderTable();
+        // インプット時のイベントリスナー登録
+        document.getElementById('filterName').addEventListener('input', renderTable);
+        document.getElementById('filterDept').addEventListener('input', renderTable);
+        document.getElementById('filterPlace').addEventListener('input', renderTable);
+
+        // 各関数をグローバルに展開
+        window.switchTab = switchTab;
+        window.toggleStatus = toggleStatus;
+        window.deleteEmp = deleteEmp;
     </script>
 </body>
 </html>
