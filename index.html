@@ -80,8 +80,16 @@
                             <input type="text" id="changeScope" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" value="就業場所：変更なし ／ 従事すべき業務：変更なし">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600">契約期間・更新ルール</label>
-                            <textarea id="contractPeriod" rows="2" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none">期間の定めなし（正社員・無期契約）</textarea>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-xs font-medium text-gray-600">契約期間・更新ルール</label>
+                                <button type="button" onclick="setAutoContractPeriod()" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-2.5 rounded shadow-xs transition">
+                                    📅 年度契約 (3/6〜翌3/5) を自動入力
+                                </button>
+                            </div>
+                            <textarea id="contractPeriod" rows="3" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none">期間の定めなし（正社員・無期契約）</textarea>
+                            <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                                ※有期雇用（パート・契約社員等）の場合は、契約更新の有無・判断基準（勤務成績や会社の経営状況等）、および通算契約期間の上限（5年等）の明示が必須です。上記ボタンで雛形が入力されます。
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -211,6 +219,28 @@
 
         document.getElementById('currentDate').innerText = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
 
+        // 契約期間の自動計算関数
+        function setAutoContractPeriod() {
+            // 基準日（採用日に入力があればそれを使い、なければ今日のシリアル値を基準にする）
+            const hireInput = document.getElementById('hireDate').value;
+            const baseDate = hireInput ? new Date(hireInput) : new Date();
+            
+            let startYear = baseDate.getFullYear();
+            
+            // 1月1日〜3月5日までの間にボタンを押した場合、契約年度としては「前年の3月6日」からスタートしている年度になるため調整
+            const march6OfThisYear = new Date(startYear, 2, 6); // 月は0始まり(2=3月)
+            if (baseDate < march6OfThisYear) {
+                startYear = startYear - 1;
+            }
+
+            const endYear = startYear + 1;
+
+            const text = `有期雇用契約：${startYear}年3月6日 〜 ${endYear}年3月5日まで
+（契約更新の可能性：あり ／ 勤務成績、会社の経営状況等により判断する。通算契約期間の上限：5年まで）`;
+            
+            document.getElementById('contractPeriod').value = text;
+        }
+
         // 一覧ページから編集で戻ってきた場合の処理
         window.onload = function() {
             const editTarget = localStorage.getItem('edit_target');
@@ -325,6 +355,7 @@
         }
 
         window.saveEmployee = saveEmployee;
+        window.setAutoContractPeriod = setAutoContractPeriod;
     </script>
 </body>
 </html>
