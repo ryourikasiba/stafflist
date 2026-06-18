@@ -15,7 +15,29 @@
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyCHFT7qYSxmqMP7E8YT_-qrhgxAD6ZH5h4",
+    authDomain: "stafflist-534ec.firebaseapp.com",
+    projectId: "stafflist-534ec",
+    storageBucket: "stafflist-534ec.firebasestorage.app",
+    messagingSenderId: "1085240857176",
+    appId: "1:1085240857176:web:937d5d301560fbf5aa702d",
+    measurementId: "G-8RRTPRBXN1"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
     <div class="max-w-4xl mx-auto p-6">
         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 border-b-2 border-blue-500 pb-2 no-print">
             <h1 class="text-3xl font-bold text-blue-900">従業員管理 ＆ 労働条件通知書</h1>
