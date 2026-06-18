@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>従業員名簿（一覧）</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 p-6">
+
+    <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">従業員名簿 ＆ 退職者管理</h1>
+                <p class="text-sm text-gray-500 mt-1">在籍者リストと退職者フォルダーを切り替えて管理できます。</p>
+            </div>
+            <a href="index.html" class="mt-4 md:mt-0 inline-flex items-center bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition shadow-xs">
+                ⬅ 新規登録・入力画面へ戻る
+            </a>
+        </div>
+
+        <div class="flex border-b border-gray-200 mb-6 space-x-2">
+            <button id="tabActive" onclick="switchTab('active')" class="py-2 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 focus:outline-none transition">
+                🟢 在籍中の従業員名簿 (<span id="countActive">0</span>人)
+            </button>
+            <button id="tabRetired" onclick="switchTab('retired')" class="py-2 px-6 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-600 focus:outline-none transition">
+                📂 退職者フォルダー (<span id="countRetired">0</span>人)
+            </button>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1">🔍 氏名検索</label>
+                <input type="text" id="filterName" oninput="renderTable()" placeholder="名前を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1">🏢 会社名で絞り込み</label>
+                <input type="text" id="filterDept" oninput="renderTable()" placeholder="会社名を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1">📍 就業場所で絞り込み</label>
+                <input type="text" id="filterPlace" oninput="renderTable()" placeholder="工場・店舗名を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-gray-100 border-b border-gray-200 text-gray-700 font-bold">
+                            <th class="p-4">氏名</th>
+                            <th class="p-4">所属会社</th>
+                            <th class="p-4">就業場所</th>
+                            <th class="p-4">基本給</th>
+                            <th class="p-4">契約期間</th>
+                            <th class="p-4 text-center">ステータス変更</th>
+                            <th class="p-4 text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeeTableBody" class="divide-y divide-gray-100">
+                        </tbody>
+                </table>
+            </div>
+            <div id="noDataMessage" class="p-8 text-center text-gray-400 hidden">
+                該当する従業員データはありません。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let employees = JSON.parse(localStorage.getItem('employees')) || [];
+        let currentTab = 'active'; // 現在開いているタブ（activeかretired）
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            // タブの見た目を切り替え
+            const tabActive = document.getElementById('tabActive');
+            const tabRetired = document.getElementById('tabRetired');
+            
+            if (tabName === 'active') {
+                tabActive.className = "py-2 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 focus:outline-none transition";
+                tabRetired.className = "py-2 px-6 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-600 focus:outline-none transition";
+            } else {
+                tabActive.className = "py-2 px-6 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-600 focus:outline-none transition";
+                tabRetired.className = "py-2 px-6 font-bold text-sm border-b-2 border-red-600 text-red-600 focus:outline-none transition";
+            }
+            
+            renderTable();
+        }
+
+        function updateCounts() {
+            // 在籍・退職のリアルタイム人数カウント
+            const activeCount = employees.filter(emp => (emp.status || 'active') === 'active').length;
+            const retiredCount = employees.filter(emp => emp.status === 'retired').length;
+            
+            document.getElementById('countActive').innerText = activeCount;
+            document.getElementById('countRetired').innerText = retiredCount;
+        }
+
+        function renderTable() {
+            updateCounts();
+            const tbody = document.getElementById('employeeTableBody');
+            const noData = document.getElementById('noDataMessage');
+            tbody.innerHTML = '';
+
+            const fName = document.getElementById('filterName').value.toLowerCase();
+            const fDept = document.getElementById('filterDept').value.toLowerCase();
+            const fPlace = document.getElementById('filterPlace').value.toLowerCase();
+
+            // 現在選択しているタブ（在籍・退職）かつ検索条件に合致するデータを抽出
+            const filtered = employees.filter(emp => {
+                const empStatus = emp.status || 'active';
+                return empStatus === currentTab &&
+                       emp.name.toLowerCase().includes(fName) &&
+                       emp.dept.toLowerCase().includes(fDept) &&
+                       emp.place.toLowerCase().includes(fPlace);
+            });
+
+            if (filtered.length === 0) {
+                noData.classList.remove('hidden');
+                return;
+            } else {
+                noData.classList.add('hidden');
+            }
+
+            filtered.forEach(emp => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-blue-50/50 cursor-pointer transition";
+                tr.onclick = () => selectEmployee(emp);
+                
+                // ステータス（在籍・退職）に応じた変更ボタンの出し分け
+                const statusButton = (emp.status === 'retired') 
+                    ? `<button onclick="event.stopPropagation(); toggleStatus(${emp.id}, 'active')" class="text-xs text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-1 rounded">名簿へ戻す</button>`
+                    : `<button onclick="event.stopPropagation(); toggleStatus(${emp.id}, 'retired')" class="text-xs text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-2 py-1 rounded">退職処理</button>`;
+
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-gray-900">${emp.name}</td>
+                    <td class="p-4"><span class="px-2 py-1 bg-blue-50 text-blue-700 rounded-sm font-medium text-xs border border-blue-100">${emp.dept}</span></td>
+                    <td class="p-4 text-gray-600">${emp.place}</td>
+                    <td class="p-4 font-semibold text-emerald-700">${emp.salary}</td>
+                    <td class="p-4 text-gray-500 text-xs max-w-xs truncate">${emp.period}</td>
+                    <td class="p-4 text-center">${statusButton}</td>
+                    <td class="p-4 text-center" onclick="event.stopPropagation();">
+                        <button onclick="deleteEmp(${emp.id})" class="text-xs font-semibold text-red-600 hover:text-red-800 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-md border border-gray-200 transition">
+                            削除
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ワンクリックで在籍⇔退職ステータスを切り替える処理
+        function toggleStatus(id, newStatus) {
+            const emp = employees.find(e => e.id === id);
+            if (emp) {
+                emp.status = newStatus;
+                localStorage.setItem('employees', JSON.stringify(employees));
+                renderTable();
+            }
+        }
+
+        function selectEmployee(emp) {
+            localStorage.setItem('edit_target', JSON.stringify(emp));
+            window.location.href = 'index.html';
+        }
+
+        function deleteEmp(id) {
+            if(confirm('このデータを完全に削除しますか？\n（フォルダー移動ではなく、データそのものが消去されます）')) {
+                employees = employees.filter(emp => emp.id !== id);
+                localStorage.setItem('employees', JSON.stringify(employees));
+                renderTable();
+            }
+        }
+
+        // 初期表示
+        renderTable();
+    </script>
+</body>
+</html>
