@@ -18,7 +18,7 @@
 <body class="bg-gray-50 text-gray-800">
 
     <div class="max-w-4xl mx-auto p-6">
-        <!-- 追加：タイトル上部の緑色の社名表示 -->
+        <!-- タイトル上部の緑色の社名表示 -->
         <div class="text-emerald-600 font-bold text-lg tracking-wider mb-1 no-print">
             株式会社料理かしば
         </div>
@@ -85,6 +85,29 @@
                             <label class="block text-xs font-medium text-gray-600">就業場所</label>
                             <input type="text" id="workPlace" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" value="本社工場">
                         </div>
+                        
+                        <!-- 追加：配属先選択（最大2つまで） -->
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">配属先（最大2つまで選択可能）</label>
+                            <div class="flex flex-wrap gap-3 p-2 border rounded-md bg-gray-50">
+                                <label class="inline-flex items-center text-sm cursor-pointer">
+                                    <input type="checkbox" name="assignment" value="配送" class="assignment-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-400 w-4 h-4 mr-1"> 配送
+                                </label>
+                                <label class="inline-flex items-center text-sm cursor-pointer">
+                                    <input type="checkbox" name="assignment" value="洗浄" class="assignment-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-400 w-4 h-4 mr-1"> 洗浄
+                                </label>
+                                <label class="inline-flex items-center text-sm cursor-pointer">
+                                    <input type="checkbox" name="assignment" value="盛付" class="assignment-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-400 w-4 h-4 mr-1"> 盛付
+                                </label>
+                                <label class="inline-flex items-center text-sm cursor-pointer">
+                                    <input type="checkbox" name="assignment" value="炊飯" class="assignment-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-400 w-4 h-4 mr-1"> 炊飯
+                                </label>
+                                <label class="inline-flex items-center text-sm cursor-pointer">
+                                    <input type="checkbox" name="assignment" value="事務" class="assignment-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-400 w-4 h-4 mr-1"> 事務
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-600">【2024法改正対応】就業場所・業務の「変更の範囲」</label>
                             <input type="text" id="changeScope" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" value="就業場所：変更なし ／ 従事すべき業務：変更なし">
@@ -197,7 +220,7 @@
                         <tr><td class="border border-black p-3 bg-gray-50 w-1/4 font-bold">雇用・採用日</td><td id="viewHireDate" class="border border-black p-3"></td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">契約期間</td><td id="viewPeriod" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">就業の場所</td><td class="border border-black p-3"><span id="viewPlace" class="font-bold"></span><br><span id="viewChangeScope" class="text-xs text-gray-600"></span></td></tr>
-                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">従事すべき業務</td><td class="border border-black p-3">食品製造・調理および附帯する業務</td></tr>
+                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">従事すべき業務</td><td class="border border-black p-3"><span class="font-bold">食品製造・調理および附帯する業務</span><br><span id="viewAssignment" class="text-xs text-blue-700 font-semibold bg-blue-50 px-2 py-0.5 rounded border border-blue-200 mt-1 inline-block"></span></td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">始業・終業の時刻等</td><td class="border border-black p-3"><div id="viewHoursList" class="space-y-1"></div><div id="viewHourMemo" class="text-xs text-gray-600 mt-2 pt-2 border-t border-gray-200"></div></td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">休日・休暇</td><td id="viewHolidays" class="border border-black p-3"></td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">賃金に関する事項</td><td class="border border-black p-3"><div class="mb-2">【基本給】 <span id="viewSalary" class="font-bold"></span></div><div id="viewAllowances" class="text-gray-700 text-xs whitespace-pre-wrap leading-relaxed"></div></td></tr>
@@ -230,6 +253,27 @@
         const db = getFirestore(app);
 
         document.getElementById('currentDate').innerText = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        // 3つ以上チェックを入れられないように制御するJavaScript
+        const checkboxes = document.querySelectorAll('.assignment-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const checkedCount = document.querySelectorAll('.assignment-checkbox:checked').length;
+                if (checkedCount > 2) {
+                    alert('配属先は最大2つまでしか選択できません。');
+                    checkbox.checked = false;
+                }
+            });
+        });
+
+        // 選択された配属先を取得する関数
+        function getSelectedAssignments() {
+            const selected = [];
+            document.querySelectorAll('.assignment-checkbox:checked').forEach(cb => {
+                selected.push(cb.value);
+            });
+            return selected; // 配列で返す
+        }
 
         function setAutoContractPeriod() {
             const hireInput = document.getElementById('hireDate').value;
@@ -276,6 +320,17 @@
                 document.getElementById('notes').value = emp.notes || '';
                 document.getElementById('empStatus').value = emp.status || 'active';
                 
+                // 配属先の復元チェック処理
+                document.querySelectorAll('.assignment-checkbox').forEach(cb => {
+                    cb.checked = false;
+                });
+                if (emp.assignments && Array.isArray(emp.assignments)) {
+                    emp.assignments.forEach(val => {
+                        const cb = document.querySelector(`.assignment-checkbox[value="${val}"]`);
+                        if(cb) cb.checked = true;
+                    });
+                }
+                
                 previewNotice(emp);
                 localStorage.removeItem('edit_target');
             }
@@ -295,6 +350,7 @@
                 dept: document.getElementById('empDept').value,
                 hireDate: document.getElementById('hireDate').value,
                 place: document.getElementById('workPlace').value,
+                assignments: getSelectedAssignments(), // 配属先の配列を保存
                 changeScope: document.getElementById('changeScope').value,
                 period: document.getElementById('contractPeriod').value,
                 hours1: document.getElementById('workHours1').value,
@@ -340,6 +396,16 @@
 
             document.getElementById('viewPeriod').innerText = emp.period;
             document.getElementById('viewPlace').innerText = emp.place;
+            
+            // 通知書の「従事すべき業務」欄に配属先をきれいに差し込む
+            const viewAssign = document.getElementById('viewAssignment');
+            if (emp.assignments && emp.assignments.length > 0) {
+                viewAssign.innerText = "【担当配属先】 " + emp.assignments.join(' ・ ');
+                viewAssign.style.display = 'inline-block';
+            } else {
+                viewAssign.style.display = 'none';
+            }
+
             document.getElementById('viewChangeScope').innerText = `（※ 将来的な変更の範囲： ${emp.changeScope} ）`;
             
             const hoursListContainer = document.getElementById('viewHoursList');
