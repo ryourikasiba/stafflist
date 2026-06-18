@@ -40,6 +40,14 @@
                             <label class="block text-xs font-medium text-gray-600">生年月日</label>
                             <input type="date" id="empBirth" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none">
                         </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">電話番号</label>
+                            <input type="tel" id="empPhone" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" placeholder="090-XXXX-XXXX">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">メールアドレス</label>
+                            <input type="email" id="empEmail" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" placeholder="example@mail.com">
+                        </div>
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-600">住所</label>
                             <input type="text" id="empAddress" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" placeholder="東京都千代田区...">
@@ -58,6 +66,10 @@
                                 <option value="有限会社CSカンパニー">有限会社CSカンパニー</option>
                                 <option value="有限会社村井食品">有限会社村井食品</option>
                             </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">採用日（入社日）</label>
+                            <input type="date" id="hireDate" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-600">就業場所</label>
@@ -162,7 +174,8 @@
                 <p class="mb-6">あなたとの労働契約について、その労働条件は下記のとおりです。</p>
                 <table class="w-full border-collapse border border-black mb-6">
                     <tbody>
-                        <tr><td class="border border-black p-3 bg-gray-50 w-1/4 font-bold">契約期間</td><td id="viewPeriod" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
+                        <tr><td class="border border-black p-3 bg-gray-50 w-1/4 font-bold">雇用・採用日</td><td id="viewHireDate" class="border border-black p-3"></td></tr>
+                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">契約期間</td><td id="viewPeriod" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">就業の場所</td><td class="border border-black p-3"><span id="viewPlace" class="font-bold"></span><br><span id="viewChangeScope" class="text-xs text-gray-600"></span></td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">従事すべき業務</td><td class="border border-black p-3">食品製造・調理および附帯する業務</td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">始業・終業の時刻等</td><td class="border border-black p-3"><div id="viewHoursList" class="space-y-1"></div><div id="viewHourMemo" class="text-xs text-gray-600 mt-2 pt-2 border-t border-gray-200"></div></td></tr>
@@ -206,8 +219,11 @@
                 document.getElementById('empFirebaseId').value = emp.id || '';
                 document.getElementById('empName').value = emp.name || '';
                 document.getElementById('empBirth').value = emp.birth || '';
+                document.getElementById('empPhone').value = emp.phone || '';
+                document.getElementById('empEmail').value = emp.email || '';
                 document.getElementById('empAddress').value = emp.address || '';
                 document.getElementById('empDept').value = emp.dept || '株式会社料理かしば';
+                document.getElementById('hireDate').value = emp.hireDate || '';
                 document.getElementById('workPlace').value = emp.place || '';
                 document.getElementById('changeScope').value = emp.changeScope || '';
                 document.getElementById('contractPeriod').value = emp.period || '';
@@ -237,8 +253,11 @@
                 id: docId,
                 name: document.getElementById('empName').value,
                 birth: document.getElementById('empBirth').value,
+                phone: document.getElementById('empPhone').value,
+                email: document.getElementById('empEmail').value,
                 address: document.getElementById('empAddress').value,
                 dept: document.getElementById('empDept').value,
+                hireDate: document.getElementById('hireDate').value,
                 place: document.getElementById('workPlace').value,
                 changeScope: document.getElementById('changeScope').value,
                 period: document.getElementById('contractPeriod').value,
@@ -267,7 +286,7 @@
                 alert("Firebaseクラウド名簿に安全に保存・更新しました！");
             } catch (error) {
                 console.error("Error writing document: ", error);
-                alert("保存に失敗しました。Firestoreのルール（テストモード）が有効か確認してください。: " + error.message);
+                alert("保存に失敗しました。Firestoreのルール設定を確認してください。: " + error.message);
             }
         }
 
@@ -275,6 +294,15 @@
             document.getElementById('previewContainer').classList.remove('hidden');
             document.getElementById('viewEmpName').innerText = emp.name;
             document.getElementById('viewCompanyName').innerText = emp.dept;
+            
+            // 採用日の表示フォーマット
+            if(emp.hireDate) {
+                const hDate = new Date(emp.hireDate);
+                document.getElementById('viewHireDate').innerText = hDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' }) + " より雇用";
+            } else {
+                document.getElementById('viewHireDate').innerText = "未設定";
+            }
+
             document.getElementById('viewPeriod').innerText = emp.period;
             document.getElementById('viewPlace').innerText = emp.place;
             document.getElementById('viewChangeScope').innerText = `（※ 将来的な変更の範囲： ${emp.changeScope} ）`;
