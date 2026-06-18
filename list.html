@@ -72,52 +72,49 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // ⚠️ あとでここに Firebaseの設定情報（Config）を貼り付けます（index.htmlと同じもの）
+        // あなたのFirebaseプロジェクトの設定情報（index.htmlと同じもの）
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyCHFT7qYSxmqMP7E8YT_-qrhgxAD6ZH5h4",
+            authDomain: "stafflist-534ec.firebaseapp.com",
+            projectId: "stafflist-534ec",
+            storageBucket: "stafflist-534ec.firebasestorage.app",
+            messagingSenderId: "1085240857176",
+            appId: "1:1085240857176:web:937d5d301560fbf5aa702d",
+            measurementId: "G-8RRTPRBXN1"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let allEmployees = []; // Firebaseから取得した元データ全体
+        let allEmployees = []; 
         let currentTab = 'active';
 
-        // 1. Firebaseのデータをリアルタイム監視＆自動取得
+        // Firebaseのデータをリアルタイム監視
         onSnapshot(collection(db, "employees"), (snapshot) => {
             allEmployees = [];
             snapshot.forEach((doc) => {
                 allEmployees.push(doc.data());
             });
-            renderTable(); // データが更新されたら再描画
+            renderTable(); 
         }, (error) => {
             console.error("Firebaseデータ読み込みエラー: ", error);
-            document.getElementById('employeeTableBody').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500">データの読み込みに失敗しました。Firestoreのルール設定を確認してください。</td></tr>`;
+            document.getElementById('employeeTableBody').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500">データの読み込みに失敗しました。Firestoreのルール設定（テストモード）を確認してください。</td></tr>`;
         });
 
-        // テーブルと件数の描画
         function renderTable() {
             const tbody = document.getElementById('employeeTableBody');
             const noData = document.getElementById('noDataMessage');
             tbody.innerHTML = '';
 
-            // 各種フィルター条件
             const fName = document.getElementById('filterName').value.toLowerCase();
             const fDept = document.getElementById('filterDept').value.toLowerCase();
             const fPlace = document.getElementById('filterPlace').value.toLowerCase();
 
-            // 件数カウントのリアルタイム更新
             const activeCount = allEmployees.filter(emp => (emp.status || 'active') === 'active').length;
             const retiredCount = allEmployees.filter(emp => emp.status === 'retired').length;
             document.getElementById('countActive').innerText = activeCount;
             document.getElementById('countRetired').innerText = retiredCount;
 
-            // タブかつフィルター条件で抽出
             const filtered = allEmployees.filter(emp => {
                 const empStatus = emp.status || 'active';
                 return empStatus === currentTab &&
@@ -159,7 +156,6 @@
             });
         }
 
-        // クラウド上のステータスを直接書き換える
         async function toggleStatus(id, newStatus) {
             try {
                 await updateDoc(doc(db, "employees", id), { status: newStatus });
@@ -168,7 +164,6 @@
             }
         }
 
-        // クラウド上のデータを完全に削除
         async function deleteEmp(id) {
             if(confirm('このデータをFirebaseクラウドから完全に削除しますか？\n他の端末のデータからも完全に消去されます。')) {
                 try {
@@ -198,12 +193,10 @@
             renderTable();
         }
 
-        // インプット時のイベントリスナー登録
         document.getElementById('filterName').addEventListener('input', renderTable);
         document.getElementById('filterDept').addEventListener('input', renderTable);
         document.getElementById('filterPlace').addEventListener('input', renderTable);
 
-        // 各関数をグローバルに展開
         window.switchTab = switchTab;
         window.toggleStatus = toggleStatus;
         window.deleteEmp = deleteEmp;
