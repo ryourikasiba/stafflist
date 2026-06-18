@@ -49,10 +49,10 @@
                     <thead>
                         <tr class="bg-gray-100 border-b border-gray-200 text-gray-700 font-bold">
                             <th class="p-4">氏名</th>
-                            <th class="p-4">所属会社</th>
-                            <th class="p-4">就業場所</th>
+                            <th class="p-4">連絡先情報</th>
+                            <th class="p-4">所属会社 / 就業場所</th>
+                            <th class="p-4">採用日</th>
                             <th class="p-4">基本給</th>
-                            <th class="p-4">契約期間</th>
                             <th class="p-4 text-center">ステータス変更</th>
                             <th class="p-4 text-center">操作</th>
                         </tr>
@@ -98,7 +98,7 @@
             renderTable(); 
         }, (error) => {
             console.error("Firebaseデータ読み込みエラー: ", error);
-            document.getElementById('employeeTableBody').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500">データの読み込みに失敗しました。Firestoreのルール設定（テストモード）を確認してください。</td></tr>`;
+            document.getElementById('employeeTableBody').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500">データの読み込みに失敗しました。</td></tr>`;
         });
 
         function renderTable() {
@@ -139,12 +139,25 @@
                     ? `<button onclick="event.stopPropagation(); toggleStatus('${emp.id}', 'active')" class="text-xs text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-1 rounded">名簿へ戻す</button>`
                     : `<button onclick="event.stopPropagation(); toggleStatus('${emp.id}', 'retired')" class="text-xs text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-2 py-1 rounded">退職処理</button>`;
 
+                // 連絡先情報の出し分け表示
+                const phoneText = emp.phone ? `📞 ${emp.phone}` : '📞 --';
+                const emailText = emp.email ? `✉️ ${emp.email}` : '✉️ --';
+
+                // 採用日の出し分け表示
+                const hireText = emp.hireDate ? emp.hireDate.replace(/-/g, '/') : '未登録';
+
                 tr.innerHTML = `
                     <td class="p-4 font-bold text-gray-900">${emp.name}</td>
-                    <td class="p-4"><span class="px-2 py-1 bg-blue-50 text-blue-700 rounded-sm font-medium text-xs border border-blue-100">${emp.dept}</span></td>
-                    <td class="p-4 text-gray-600">${emp.place}</td>
+                    <td class="p-4 text-xs text-gray-600 leading-relaxed">
+                        <div>${phoneText}</div>
+                        <div>${emailText}</div>
+                    </td>
+                    <td class="p-4">
+                        <div class="inline-block px-2 py-0.5 bg-blue-50 text-blue-700 rounded-sm font-medium text-xs border border-blue-100 mb-1">${emp.dept}</div>
+                        <div class="text-xs text-gray-500">${emp.place}</div>
+                    </td>
+                    <td class="p-4 font-medium text-gray-600 text-xs">${hireText}</td>
                     <td class="p-4 font-semibold text-emerald-700">${emp.salary}</td>
-                    <td class="p-4 text-gray-500 text-xs max-w-xs truncate">${emp.period}</td>
                     <td class="p-4 text-center">${statusButton}</td>
                     <td class="p-4 text-center" onclick="event.stopPropagation();">
                         <button onclick="deleteEmp('${emp.id}')" class="text-xs font-semibold text-red-600 hover:text-red-800 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-md border border-gray-200 transition">
