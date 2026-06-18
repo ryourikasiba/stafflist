@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>従業員管理＆労働条件通知書システム</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @media print {
@@ -17,8 +16,25 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
 
-    <div class="max-w-4xl mx-auto p-6">
-        <!-- タイトル上部の緑色の社名表示 -->
+    <div id="passwordGate" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-50 p-4 no-print">
+        <div class="bg-white p-6 md:p-8 rounded-lg shadow-2xl max-w-sm w-full border border-gray-200">
+            <div class="text-center mb-6">
+                <span class="text-3xl">🔒</span>
+                <h2 class="text-xl font-bold text-gray-800 mt-2">セキュリティ認証</h2>
+                <p class="text-xs text-gray-500 mt-1">システムを利用するにはパスワードが必要です</p>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">パスワード</label>
+                <input type="password" id="sitePassword" class="w-full p-3 border rounded-md outline-none focus:ring-2 focus:ring-blue-400 text-center font-mono tracking-widest text-lg" placeholder="••••••••">
+                <p id="passwordError" class="text-xs text-red-500 font-bold mt-2 hidden text-center">❌ パスワードが正しくありません</p>
+                <button onclick="checkPassword()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md mt-4 transition duration-150 shadow-md">
+                    認証して入室
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainContent" class="max-w-4xl mx-auto p-6 hidden">
         <div class="text-emerald-600 font-bold text-lg tracking-wider mb-1 no-print">
             株式会社料理かしば
         </div>
@@ -30,14 +46,11 @@
             </a>
         </div>
 
-        <!-- 入力フォーム -->
         <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 no-print">
             <h2 class="text-xl font-semibold mb-4 text-gray-700">従業員情報の入力</h2>
             <form id="employeeForm" class="space-y-6">
-                <!-- フォーム識別用の隠しID（編集用） -->
                 <input type="hidden" id="empFirebaseId">
                 
-                <!-- 1. 基本情報 -->
                 <div>
                     <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-2">1. 基本情報</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -64,7 +77,6 @@
                     </div>
                 </div>
 
-                <!-- 2. 配属・契約情報 -->
                 <div>
                     <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-2">2. 配属・契約情報（法改正対応）</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -86,7 +98,6 @@
                             <input type="text" id="workPlace" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" value="本社工場">
                         </div>
                         
-                        <!-- 追加：配属先選択（最大2つまで） -->
                         <div>
                             <label class="block text-xs font-medium text-gray-600 mb-1">配属先（最大2つまで選択可能）</label>
                             <div class="flex flex-wrap gap-3 p-2 border rounded-md bg-gray-50">
@@ -127,7 +138,6 @@
                     </div>
                 </div>
 
-                <!-- 3. 労働条件 -->
                 <div>
                     <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-2">3. 労働条件</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-md bg-gray-50 mb-4">
@@ -195,7 +205,6 @@
             </form>
         </div>
 
-        <!-- 下：労働条件通知書プレビュー -->
         <div id="previewContainer" class="mt-12 bg-white p-8 rounded-lg shadow-md border border-gray-300 relative hidden">
             <div class="flex justify-between items-center mb-6 no-print">
                 <h2 class="text-xl font-bold text-gray-800">労働条件通知書プレビュー</h2>
@@ -234,7 +243,6 @@
         </div>
     </div>
 
-    <!-- Firebase SDK の読み込みと設定 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -254,7 +262,31 @@
 
         document.getElementById('currentDate').innerText = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
 
-        // 3つ以上チェックを入れられないように制御するJavaScript
+        // --- パスワード認証機能 ---
+        const CORRECT_PASSWORD = "kashiba2026"; // 👈 ここを変更するとパスワードが変わります
+
+        function checkPassword() {
+            const input = document.getElementById('sitePassword').value;
+            if (input === CORRECT_PASSWORD) {
+                // 正解ならゲートを消して中身を表示、セッションに保存してリロードされても大丈夫にする
+                document.getElementById('passwordGate').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                document.getElementById('passwordError').classList.add('hidden');
+                sessionStorage.setItem('site_authenticated', 'true');
+            } else {
+                // 不正解ならエラー表示
+                document.getElementById('passwordError').classList.remove('hidden');
+            }
+        }
+
+        // エンターキーでもログインできるように設定
+        document.getElementById('sitePassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        // 3つ以上チェックを入れられないように制御する
         const checkboxes = document.querySelectorAll('.assignment-checkbox');
         checkboxes.forEach(checkbox => {
             checkbox.addEventListener('change', () => {
@@ -266,13 +298,12 @@
             });
         });
 
-        // 選択された配属先を取得する関数
         function getSelectedAssignments() {
             const selected = [];
             document.querySelectorAll('.assignment-checkbox:checked').forEach(cb => {
                 selected.push(cb.value);
             });
-            return selected; // 配列で返す
+            return selected;
         }
 
         function setAutoContractPeriod() {
@@ -294,6 +325,12 @@
         }
 
         window.onload = function() {
+            // パスワード認証がすでに完了しているか確認
+            if (sessionStorage.getItem('site_authenticated') === 'true') {
+                document.getElementById('passwordGate').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+            }
+
             const editTarget = localStorage.getItem('edit_target');
             if(editTarget) {
                 const emp = JSON.parse(editTarget);
@@ -320,7 +357,6 @@
                 document.getElementById('notes').value = emp.notes || '';
                 document.getElementById('empStatus').value = emp.status || 'active';
                 
-                // 配属先の復元チェック処理
                 document.querySelectorAll('.assignment-checkbox').forEach(cb => {
                     cb.checked = false;
                 });
@@ -350,7 +386,7 @@
                 dept: document.getElementById('empDept').value,
                 hireDate: document.getElementById('hireDate').value,
                 place: document.getElementById('workPlace').value,
-                assignments: getSelectedAssignments(), // 配属先の配列を保存
+                assignments: getSelectedAssignments(),
                 changeScope: document.getElementById('changeScope').value,
                 period: document.getElementById('contractPeriod').value,
                 hours1: document.getElementById('workHours1').value,
@@ -397,7 +433,6 @@
             document.getElementById('viewPeriod').innerText = emp.period;
             document.getElementById('viewPlace').innerText = emp.place;
             
-            // 通知書の「従事すべき業務」欄に配属先をきれいに差し込む
             const viewAssign = document.getElementById('viewAssignment');
             if (emp.assignments && emp.assignments.length > 0) {
                 viewAssign.innerText = "【担当配属先】 " + emp.assignments.join(' ・ ');
@@ -427,6 +462,7 @@
 
         window.saveEmployee = saveEmployee;
         window.setAutoContractPeriod = setAutoContractPeriod;
+        window.checkPassword = checkPassword;
     </script>
 </body>
 </html>
