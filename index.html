@@ -3,79 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>従業員名簿（一覧）</title>
+    <title>従業員管理＆労働条件通知書システム</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @media print {
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none; }
+        }
+    </style>
 </head>
-<body class="bg-gray-50 text-gray-800 p-6">
+<body class="bg-gray-50 text-gray-800">
 
-    <div class="max-w-6xl mx-auto">
-        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">クラウド従業員名簿</h1>
-                <p class="text-sm text-gray-500 mt-1">Firebaseからリアルタイムに同期された名簿リストです。</p>
-            </div>
-            <div class="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
-                <button onclick="downloadCSV()" class="inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-md transition shadow-xs cursor-pointer">
-                    📥 名簿をCSVでダウンロード
+    <div class="max-w-4xl mx-auto p-6">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 border-b-2 border-blue-500 pb-2 no-print">
+            <h1 class="text-3xl font-bold text-blue-900">従業員管理 ＆ 労働条件通知書</h1>
+            <a href="list.html" class="mt-4 md:mt-0 inline-flex items-center bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-4 rounded-md border border-blue-300 transition shadow-xs">
+                📋 従業員名簿（一覧ページ）を開く
+            </a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 no-print">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">従業員情報の入力</h2>
+            <form id="employeeForm" class="space-y-6">
+                <input type="hidden" id="empFirebaseId">
+                
+                <div>
+                    <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-2">1. 基本情報</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">氏名</label>
+                            <input type="text" id="empName" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" placeholder="山田 太郎">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">生年月日</label>
+                            <input type="date" id="empBirth" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600">住所</label>
+                            <input type="text" id="empAddress" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" placeholder="東京都千代田区...">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-2">2. 配属・契約情報（法改正対応）</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">所属会社</label>
+                            <select id="empDept" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none font-medium bg-blue-50">
+                                <option value="株式会社料理かしば">株式会社料理かしば</option>
+                                <option value="株式会社山下食品">株式会社山下食品</option>
+                                <option value="有限会社CSカンパニー">有限会社CSカンパニー</option>
+                                <option value="有限会社村井食品">有限会社村井食品</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">就業場所</label>
+                            <input type="text" id="workPlace" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" value="本社工場">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600">【2024法改正対応】就業場所・業務の「変更の範囲」</label>
+                            <input type="text" id="changeScope" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" value="就業場所：変更なし ／ 従事すべき業務：変更なし">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600">契約期間・更新ルール</label>
+                            <textarea id="contractPeriod" rows="2" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none">期間の定めなし（正社員・無期契約）</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-2">3. 労働条件</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-md bg-gray-50 mb-4">
+                        <div class="md:col-span-2"><p class="text-xs font-bold text-gray-500">【就業時刻】</p></div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600">就業時間 パターン①</label>
+                            <input type="text" id="workHours1" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-blue-400" value="08:00 〜 17:00 (休憩60分)">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600">就業時間 パターン②</label>
+                            <input type="text" id="workHours2" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-blue-400" value="10:00 〜 19:00 (休憩60分)">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600">就業時間 パターン③</label>
+                            <input type="text" id="workHours3" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-blue-400" value="">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600">勤務形態・シフトに関する補足</label>
+                            <input type="text" id="workHourMemo" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-blue-400" value="業務の都合により、上記いずれかの勤務時間を前月25日までにシフト表で明示する。">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">休日</label>
+                            <input type="text" id="holidays" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" value="シフトカレンダーによる（月8日〜10日）、年次有給休暇は法定通り付与">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">基本給（月給/時給）</label>
+                            <input type="text" id="salary" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" placeholder="月給 250,000円">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600">諸手当・賃金支払いルール（締日・支払日、割増率）</label>
+                            <textarea id="allowances" rows="4" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none">【手当】通勤手当（実費支給・上限月2万円）
+【締切・支払】毎月20日締め・当月25日払（口座振込）
+【割増賃金】時間外労働：25%増、深夜労働：25%増、法定休日：35%増</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">昇給・賞与・退職金</label>
+                            <input type="text" id="bonus" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" value="昇給：あり、賞与：年2回、退職金：なし">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600">退職に関する事項</label>
+                            <input type="text" id="retirement" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" value="定年制（60歳・再雇用制度あり）、自己都合退職は1ヶ月前までに届出、解雇の手続きは就業規則の定めに従う">
+                        </div>
+                        
+                        <div class="md:col-span-2 bg-yellow-50 p-3 rounded-md border border-yellow-200">
+                            <label class="block text-xs font-bold text-yellow-800">名簿の在籍ステータス設定</label>
+                            <select id="empStatus" class="w-full mt-1 p-2 border border-yellow-300 rounded-md bg-white font-semibold outline-none focus:ring-2 focus:ring-yellow-400">
+                                <option value="active">🟢 現在、在籍中（通常名簿へ）</option>
+                                <option value="retired">🔴 退職済み（退職者フォルダーへ移動）</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">備考欄</label>
+                            <textarea id="notes" rows="2" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" placeholder="特記事項なし"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" onclick="saveEmployee()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-200">
+                    クラウド名簿に保存 ＆ 通知書を生成
                 </button>
-                <a href="index.html" class="inline-flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition shadow-xs">
-                    ⬅ 新規登録・入力画面へ戻る
-                </a>
-            </div>
+            </form>
         </div>
 
-        <div class="flex border-b border-gray-200 mb-6 space-x-2">
-            <button id="tabActive" onclick="switchTab('active')" class="py-2 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 focus:outline-none transition">
-                🟢 在籍中の従業員名簿 (<span id="countActive">0</span>人)
-            </button>
-            <button id="tabRetired" onclick="switchTab('retired')" class="py-2 px-6 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-600 focus:outline-none transition">
-                📂 退職者フォルダー (<span id="countRetired">0</span>人)
-            </button>
-        </div>
+        <div id="previewContainer" class="mt-12 bg-white p-8 rounded-lg shadow-md border border-gray-300 relative hidden">
+            <div class="flex justify-between items-center mb-6 no-print">
+                <h2 class="text-xl font-bold text-gray-800">労働条件通知書プレビュー</h2>
+                <button onclick="window.print()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md shadow transition">
+                    この通知書を印刷 / PDF保存
+                </button>
+            </div>
 
-        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">🔍 氏名検索</label>
-                <input type="text" id="filterName" placeholder="名前を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">🏢 会社名で絞り込み</label>
-                <input type="text" id="filterDept" placeholder="会社名を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">📍 就業場所で絞り込み</label>
-                <input type="text" id="filterPlace" placeholder="工場・店舗名を入力..." class="w-full p-2 border rounded-md bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-sm">
-                    <thead>
-                        <tr class="bg-gray-100 border-b border-gray-200 text-gray-700 font-bold">
-                            <th class="p-4">氏名</th>
-                            <th class="p-4">所属会社</th>
-                            <th class="p-4">就業場所</th>
-                            <th class="p-4">基本給</th>
-                            <th class="p-4">契約期間</th>
-                            <th class="p-4 text-center">ステータス変更</th>
-                            <th class="p-4 text-center">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="employeeTableBody" class="divide-y divide-gray-100">
-                        <tr><td colspan="7" class="p-8 text-center text-gray-400">クラウドからデータを読み込み中...</td></tr>
+            <div id="printArea" class="p-8 border-2 border-double border-gray-400 bg-white min-h-[1100px] text-sm leading-relaxed">
+                <h1 class="text-center text-2xl font-bold tracking-widest mb-8">労 働 条 件 通 知 書</h1>
+                <div class="flex justify-between mb-6">
+                    <div><span id="viewEmpName" class="text-lg font-bold border-b border-black pr-8"></span> 殿</div>
+                    <div class="text-right">
+                        <p>通知日：<span id="currentDate"></span></p>
+                        <p class="font-bold mt-2">使用者：<span id="viewCompanyName"></span></p>
+                        <p>代表取締役 山下 真弘 印</p>
+                    </div>
+                </div>
+                <p class="mb-6">あなたとの労働契約について、その労働条件は下記のとおりです。</p>
+                <table class="w-full border-collapse border border-black mb-6">
+                    <tbody>
+                        <tr><td class="border border-black p-3 bg-gray-50 w-1/4 font-bold">契約期間</td><td id="viewPeriod" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
+                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">就業の場所</td><td class="border border-black p-3"><span id="viewPlace" class="font-bold"></span><br><span id="viewChangeScope" class="text-xs text-gray-600"></span></td></tr>
+                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">従事すべき業務</td><td class="border border-black p-3">食品製造・調理および附帯する業務</td></tr>
+                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">始業・終業の時刻等</td><td class="border border-black p-3"><div id="viewHoursList" class="space-y-1"></div><div id="viewHourMemo" class="text-xs text-gray-600 mt-2 pt-2 border-t border-gray-200"></div></td></tr>
+                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">休日・休暇</td><td id="viewHolidays" class="border border-black p-3"></td></tr>
+                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">賃金に関する事項</td><td class="border border-black p-3"><div class="mb-2">【基本給】 <span id="viewSalary" class="font-bold"></span></div><div id="viewAllowances" class="text-gray-700 text-xs whitespace-pre-wrap leading-relaxed"></div></td></tr>
+                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">昇給・賞与・退職金</td><td id="viewBonus" class="border border-black p-3"></td></tr>
+                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">退職に関する事項</td><td id="viewRetirement" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
+                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">備考</td><td id="viewNotes" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
                     </tbody>
                 </table>
-            </div>
-            <div id="noDataMessage" class="p-8 text-center text-gray-400 hidden">
-                該当する従業員データはありません。
+                <p class="text-xs text-right text-gray-500">※本書面は労働基準法第15条第1項に基づく書面の交付を兼ねています。</p>
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // あなたのFirebaseプロジェクトの設定情報
         const firebaseConfig = {
@@ -91,180 +196,107 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let allEmployees = []; 
-        let currentTab = 'active';
+        document.getElementById('currentDate').innerText = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
 
-        // Firebaseのデータをリアルタイム監視
-        onSnapshot(collection(db, "employees"), (snapshot) => {
-            allEmployees = [];
-            snapshot.forEach((doc) => {
-                allEmployees.push(doc.data());
-            });
-            renderTable(); 
-        }, (error) => {
-            console.error("Firebaseデータ読み込みエラー: ", error);
-            document.getElementById('employeeTableBody').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500">データの読み込みに失敗しました。Firestoreのルール設定（テストモード）を確認してください。</td></tr>`;
-        });
-
-        // 現在画面（タブ＋検索条件）に表示されている従業員を返す関数
-        function getFilteredEmployees() {
-            const fName = document.getElementById('filterName').value.toLowerCase();
-            const fDept = document.getElementById('filterDept').value.toLowerCase();
-            const fPlace = document.getElementById('filterPlace').value.toLowerCase();
-
-            return allEmployees.filter(emp => {
-                const empStatus = emp.status || 'active';
-                return empStatus === currentTab &&
-                       (emp.name || '').toLowerCase().includes(fName) &&
-                       (emp.dept || '').toLowerCase().includes(fDept) &&
-                       (emp.place || '').toLowerCase().includes(fPlace);
-            });
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('employeeTableBody');
-            const noData = document.getElementById('noDataMessage');
-            tbody.innerHTML = '';
-
-            const activeCount = allEmployees.filter(emp => (emp.status || 'active') === 'active').length;
-            const retiredCount = allEmployees.filter(emp => emp.status === 'retired').length;
-            document.getElementById('countActive').innerText = activeCount;
-            document.getElementById('countRetired').innerText = retiredCount;
-
-            const filtered = getFilteredEmployees();
-
-            if (filtered.length === 0) {
-                noData.classList.remove('hidden');
-                return;
-            } else {
-                noData.classList.add('hidden');
-            }
-
-            filtered.forEach(emp => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-blue-50/50 cursor-pointer transition";
-                tr.onclick = () => selectEmployee(emp);
+        // 一覧ページから編集で戻ってきた場合の処理
+        window.onload = function() {
+            const editTarget = localStorage.getItem('edit_target');
+            if(editTarget) {
+                const emp = JSON.parse(editTarget);
+                document.getElementById('empFirebaseId').value = emp.id || '';
+                document.getElementById('empName').value = emp.name || '';
+                document.getElementById('empBirth').value = emp.birth || '';
+                document.getElementById('empAddress').value = emp.address || '';
+                document.getElementById('empDept').value = emp.dept || '株式会社料理かしば';
+                document.getElementById('workPlace').value = emp.place || '';
+                document.getElementById('changeScope').value = emp.changeScope || '';
+                document.getElementById('contractPeriod').value = emp.period || '';
+                document.getElementById('workHours1').value = emp.hours1 || '';
+                document.getElementById('workHours2').value = emp.hours2 || '';
+                document.getElementById('workHours3').value = emp.hours3 || '';
+                document.getElementById('workHourMemo').value = emp.hourMemo || '';
+                document.getElementById('holidays').value = emp.holidays || '';
+                document.getElementById('salary').value = emp.salary || '';
+                document.getElementById('allowances').value = emp.allowances || '';
+                document.getElementById('bonus').value = emp.bonus || '';
+                document.getElementById('retirement').value = emp.retirement || '';
+                document.getElementById('notes').value = emp.notes || '';
+                document.getElementById('empStatus').value = emp.status || 'active';
                 
-                const statusButton = (emp.status === 'retired') 
-                    ? `<button onclick="event.stopPropagation(); toggleStatus('${emp.id}', 'active')" class="text-xs text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-1 rounded">名簿へ戻す</button>`
-                    : `<button onclick="event.stopPropagation(); toggleStatus('${emp.id}', 'retired')" class="text-xs text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-2 py-1 rounded">退職処理</button>`;
-
-                tr.innerHTML = `
-                    <td class="p-4 font-bold text-gray-900">${emp.name}</td>
-                    <td class="p-4"><span class="px-2 py-1 bg-blue-50 text-blue-700 rounded-sm font-medium text-xs border border-blue-100">${emp.dept}</span></td>
-                    <td class="p-4 text-gray-600">${emp.place}</td>
-                    <td class="p-4 font-semibold text-emerald-700">${emp.salary}</td>
-                    <td class="p-4 text-gray-500 text-xs max-w-xs truncate">${emp.period}</td>
-                    <td class="p-4 text-center">${statusButton}</td>
-                    <td class="p-4 text-center" onclick="event.stopPropagation();">
-                        <button onclick="deleteEmp('${emp.id}')" class="text-xs font-semibold text-red-600 hover:text-red-800 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-md border border-gray-200 transition">
-                            削除
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+                previewNotice(emp);
+                localStorage.removeItem('edit_target');
+            }
         }
 
-        // 📥 CSV生成＆ダウンロード処理
-        function downloadCSV() {
-            const targets = getFilteredEmployees();
-            if (targets.length === 0) {
-                alert("ダウンロードするデータがありません。");
+        // 登録・上書き保存処理
+        async function saveEmployee() {
+            const existingId = document.getElementById('empFirebaseId').value;
+            const docId = existingId ? existingId : "emp_" + Date.now();
+
+            const emp = {
+                id: docId,
+                name: document.getElementById('empName').value,
+                birth: document.getElementById('empBirth').value,
+                address: document.getElementById('empAddress').value,
+                dept: document.getElementById('empDept').value,
+                place: document.getElementById('workPlace').value,
+                changeScope: document.getElementById('changeScope').value,
+                period: document.getElementById('contractPeriod').value,
+                hours1: document.getElementById('workHours1').value,
+                hours2: document.getElementById('workHours2').value,
+                hours3: document.getElementById('workHours3').value,
+                hourMemo: document.getElementById('workHourMemo').value,
+                holidays: document.getElementById('holidays').value,
+                salary: document.getElementById('salary').value,
+                allowances: document.getElementById('allowances').value,
+                bonus: document.getElementById('bonus').value,
+                retirement: document.getElementById('retirement').value,
+                notes: document.getElementById('notes').value,
+                status: document.getElementById('empStatus').value,
+                updatedAt: new Date().toISOString()
+            };
+
+            if(!emp.name || !emp.address || !emp.place || !emp.changeScope) {
+                alert("必須項目を入力してください");
                 return;
             }
 
-            // CSVのヘッダー行（Excelで化けないように項目を設定）
-            const headers = ["氏名", "生年月日", "住所", "所属会社", "就業場所", "変更の範囲", "契約期間", "就業時間1", "就業時間2", "就業時間3", "勤務補足", "休日", "基本給", "諸手当", "昇給賞与", "退職事項", "備考", "ステータス"];
-            
-            // データをCSVの行データに変換（値をダブルクォーテーションで囲む）
-            const rows = targets.map(emp => [
-                emp.name || "",
-                emp.birth || "",
-                emp.address || "",
-                emp.dept || "",
-                emp.place || "",
-                emp.changeScope || "",
-                emp.period || "",
-                emp.hours1 || "",
-                emp.hours2 || "",
-                emp.hours3 || "",
-                emp.hourMemo || "",
-                emp.holidays || "",
-                emp.salary || "",
-                emp.allowances || "",
-                emp.bonus || "",
-                emp.retirement || "",
-                emp.notes || "",
-                emp.status === "retired" ? "退職" : "在籍"
-            ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(",")); // 値の中のダブルクォーテーションをエスケープ
-
-            // ヘッダーと中身を結合
-            const csvContent = [headers.join(","), ...rows].join("\n");
-
-            // Excelで開いたときの文字化けを防ぐための「BOM（Byte Order Mark）」を追加
-            const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-            const blob = new Blob([bom, csvContent], { type: "text/csv;charset=utf-8;" });
-            
-            // ダウンロードリンクを生成してクリックさせる
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            const label = currentTab === "active" ? "在籍者名簿" : "退職者名簿";
-            const dateStr = new Date().toISOString().slice(0,10); // YYYY-MM-DD フォーマット
-            
-            link.setAttribute("href", url);
-            link.setAttribute("download", `従業員名簿_${label}_${dateStr}.csv`);
-            link.style.visibility = "hidden";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        async function toggleStatus(id, newStatus) {
             try {
-                await updateDoc(doc(db, "employees", id), { status: newStatus });
+                await setDoc(doc(db, "employees", docId), emp);
+                previewNotice(emp);
+                alert("Firebaseクラウド名簿に安全に保存・更新しました！");
             } catch (error) {
-                alert("ステータス変更に失敗しました: " + error.message);
+                console.error("Error writing document: ", error);
+                alert("保存に失敗しました。Firestoreのルール（テストモード）が有効か確認してください。: " + error.message);
             }
         }
 
-        async function deleteEmp(id) {
-            if(confirm('このデータをFirebaseクラウドから完全に削除しますか？\n他の端末のデータからも完全に消去されます。')) {
-                try {
-                    await deleteDoc(doc(db, "employees", id));
-                } catch (error) {
-                    alert("削除に失敗しました: " + error.message);
-                }
-            }
+        function previewNotice(emp) {
+            document.getElementById('previewContainer').classList.remove('hidden');
+            document.getElementById('viewEmpName').innerText = emp.name;
+            document.getElementById('viewCompanyName').innerText = emp.dept;
+            document.getElementById('viewPeriod').innerText = emp.period;
+            document.getElementById('viewPlace').innerText = emp.place;
+            document.getElementById('viewChangeScope').innerText = `（※ 将来的な変更の範囲： ${emp.changeScope} ）`;
+            
+            const hoursListContainer = document.getElementById('viewHoursList');
+            hoursListContainer.innerHTML = '';
+            if(emp.hours1) hoursListContainer.innerHTML += `<div>・パターン①：${emp.hours1}</div>`;
+            if(emp.hours2) hoursListContainer.innerHTML += `<div>・パターン②：${emp.hours2}</div>`;
+            if(emp.hours3) hoursListContainer.innerHTML += `<div>・パターン③：${emp.hours3}</div>`;
+            
+            document.getElementById('viewHourMemo').innerText = emp.hourMemo || '';
+            document.getElementById('viewHolidays').innerText = emp.holidays;
+            document.getElementById('viewSalary').innerText = emp.salary;
+            document.getElementById('viewAllowances').innerText = emp.allowances;
+            document.getElementById('viewBonus').innerText = emp.bonus;
+            document.getElementById('viewRetirement').innerText = emp.retirement;
+            document.getElementById('viewNotes').innerText = emp.notes || '特記事項なし';
+            
+            document.getElementById('previewContainer').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function selectEmployee(emp) {
-            localStorage.setItem('edit_target', JSON.stringify(emp));
-            window.location.href = 'index.html';
-        }
-
-        function switchTab(tabName) {
-            currentTab = tabName;
-            const tabActive = document.getElementById('tabActive');
-            const tabRetired = document.getElementById('tabRetired');
-            if (tabName === 'active') {
-                tabActive.className = "py-2 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 focus:outline-none transition";
-                tabRetired.className = "py-2 px-6 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-600 focus:outline-none transition";
-            } else {
-                tabActive.className = "py-2 px-6 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-600 focus:outline-none transition";
-                tabRetired.className = "py-2 px-6 font-bold text-sm border-b-2 border-red-600 text-red-600 focus:outline-none transition";
-            }
-            renderTable();
-        }
-
-        document.getElementById('filterName').addEventListener('input', renderTable);
-        document.getElementById('filterDept').addEventListener('input', renderTable);
-        document.getElementById('filterPlace').addEventListener('input', renderTable);
-
-        window.switchTab = switchTab;
-        window.toggleStatus = toggleStatus;
-        window.deleteEmp = deleteEmp;
-        window.downloadCSV = downloadCSV;
+        window.saveEmployee = saveEmployee;
     </script>
 </body>
 </html>
