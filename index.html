@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>従業員管理＆労働条件通知書システム</title>
+    <title>株式会社料理かしば 従業員管理＆労働条件通知書システム</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @media print {
@@ -16,43 +17,76 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
 
-    <div class="max-w-4xl mx-auto p-6">
-        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 border-b-2 border-blue-500 pb-2 no-print">
-            <h1 class="text-3xl font-bold text-blue-900">従業員管理 ＆ 労働条件通知書</h1>
-            <a href="list.html" class="mt-4 md:mt-0 inline-flex items-center bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-4 rounded-md border border-blue-300 transition shadow-xs">
+    <!-- 🔒 ログイン画面のコンテナ -->
+    <div id="loginScreen" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-50 no-print">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full border border-gray-100 text-center">
+            <div class="text-emerald-700 text-3xl font-bold mb-2">株式会社料理かしば</div>
+            <h2 class="text-xl font-semibold text-gray-700 mb-6">従業員管理システム ログイン</h2>
+            <div class="mb-4 text-left">
+                <label class="block text-xs font-bold text-gray-500 mb-1">パスワードを入力してください</label>
+                <input type="password" id="loginPassword" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none font-mono text-center text-xl tracking-widest" placeholder="••••••••">
+            </div>
+            <button onclick="checkPassword()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition cursor-pointer shadow-md">
+                認証してログイン
+            </button>
+            <p id="loginError" class="text-red-500 text-xs mt-3 hidden font-bold">⚠️ パスワードが正しくありません</p>
+        </div>
+    </div>
+
+    <!-- 🖥️ メインコンテンツ（初期状態は隠す） -->
+    <div id="mainContent" class="max-w-4xl mx-auto p-6 hidden">
+        <!-- 🟢 緑色を基調とした会社名ヘッダー -->
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 border-b-2 border-emerald-600 pb-3 no-print">
+            <div>
+                <div class="text-emerald-700 font-black text-xl tracking-wider">株式会社料理かしば</div>
+                <h1 class="text-3xl font-bold text-gray-900 mt-0.5">従業員管理 ＆ 労働条件通知書システム</h1>
+            </div>
+            <a href="list.html" class="mt-4 md:mt-0 inline-flex items-center bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-2 px-4 rounded-md border border-emerald-200 transition shadow-xs">
                 📋 従業員名簿（一覧ページ）を開く
             </a>
         </div>
 
+        <!-- 入力フォーム -->
         <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 no-print">
             <h2 class="text-xl font-semibold mb-4 text-gray-700">従業員情報の入力</h2>
             <form id="employeeForm" class="space-y-6">
+                <!-- フォーム識別用の隠しID（編集用） -->
                 <input type="hidden" id="empFirebaseId">
                 
+                <!-- 1. 基本情報 -->
                 <div>
-                    <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-2">1. 基本情報</h3>
+                    <h3 class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-2">1. 基本情報</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-medium text-gray-600">氏名</label>
-                            <input type="text" id="empName" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" placeholder="山田 太郎">
+                            <input type="text" id="empName" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="山田 太郎">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-600">生年月日</label>
-                            <input type="date" id="empBirth" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none">
+                            <input type="date" id="empBirth" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">電話番号（連絡先）</label>
+                            <input type="tel" id="empPhone" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="090-XXXX-XXXX">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">メールアドレス</label>
+                            <input type="email" id="empEmail" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="example@kashiba.com">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-600">住所</label>
-                            <input type="text" id="empAddress" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" placeholder="東京都千代田区...">
+                            <input type="text" id="empAddress" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="東京都千代田区...">
                         </div>
                     </div>
                 </div>
 
+                <!-- 2. 配属・契約情報 -->
                 <div>
-                    <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-2">2. 配属・契約情報（法改正対応）</h3>
+                    <h3 class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-2">2. 配属・契約情報（法改正対応）</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-medium text-gray-600">所属会社</label>
-                            <select id="empDept" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none font-medium bg-blue-50">
+                            <select id="empDept" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none font-medium bg-emerald-50">
                                 <option value="株式会社料理かしば">株式会社料理かしば</option>
                                 <option value="株式会社山下食品">株式会社山下食品</option>
                                 <option value="有限会社CSカンパニー">有限会社CSカンパニー</option>
@@ -60,64 +94,83 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-600">就業場所</label>
-                            <input type="text" id="workPlace" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" value="本社工場">
+                            <label class="block text-xs font-medium text-gray-600">採用日</label>
+                            <input type="date" id="hireDate" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none">
                         </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">就業場所</label>
+                            <input type="text" id="workPlace" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="本社工場">
+                        </div>
+                        
+                        <!-- 🗂️ 所属職種（複数選択チェックボックス） -->
+                        <div>
+                            <label class="block text-xs font-bold text-emerald-800 mb-1">所属（担当職種・複数選択可）</label>
+                            <div class="grid grid-cols-3 gap-2 bg-gray-50 p-2.5 border rounded-md">
+                                <label class="inline-flex items-center text-xs font-medium cursor-pointer"><input type="checkbox" name="empRoles" value="配送" class="mr-1 accent-emerald-600"> 配送</label>
+                                <label class="inline-flex items-center text-xs font-medium cursor-pointer"><input type="checkbox" name="empRoles" value="盛付" class="mr-1 accent-emerald-600"> 盛付</label>
+                                <label class="inline-flex items-center text-xs font-medium cursor-pointer"><input type="checkbox" name="empRoles" value="調理" class="mr-1 accent-emerald-600"> 調理</label>
+                                <label class="inline-flex items-center text-xs font-medium cursor-pointer"><input type="checkbox" name="empRoles" value="洗浄" class="mr-1 accent-emerald-600"> 洗浄</label>
+                                <label class="inline-flex items-center text-xs font-medium cursor-pointer"><input type="checkbox" name="empRoles" value="事務" class="mr-1 accent-emerald-600"> 事務</label>
+                                <label class="inline-flex items-center text-xs font-medium cursor-pointer"><input type="checkbox" name="empRoles" value="出先" class="mr-1 accent-emerald-600"> 出先</label>
+                            </div>
+                        </div>
+
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-600">【2024法改正対応】就業場所・業務の「変更の範囲」</label>
-                            <input type="text" id="changeScope" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" value="就業場所：変更なし ／ 従事すべき業務：変更なし">
+                            <input type="text" id="changeScope" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="就業場所：変更なし ／ 従事すべき業務：変更なし">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-600">契約期間・更新ルール</label>
-                            <textarea id="contractPeriod" rows="2" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none">期間の定めなし（正社員・無期契約）</textarea>
+                            <textarea id="contractPeriod" rows="2" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none">期間の定めなし（正社員・無期契約）</textarea>
                         </div>
                     </div>
                 </div>
 
+                <!-- 3. 労働条件 -->
                 <div>
-                    <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-2">3. 労働条件</h3>
+                    <h3 class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-2">3. 労働条件</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-md bg-gray-50 mb-4">
                         <div class="md:col-span-2"><p class="text-xs font-bold text-gray-500">【就業時刻】</p></div>
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-600">就業時間 パターン①</label>
-                            <input type="text" id="workHours1" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-blue-400" value="08:00 〜 17:00 (休憩60分)">
+                            <input type="text" id="workHours1" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-emerald-400" value="08:00 〜 17:00 (休憩60分)">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-600">就業時間 パターン②</label>
-                            <input type="text" id="workHours2" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-blue-400" value="10:00 〜 19:00 (休憩60分)">
+                            <input type="text" id="workHours2" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-emerald-400" value="10:00 〜 19:00 (休憩60分)">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-600">就業時間 パターン③</label>
-                            <input type="text" id="workHours3" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-blue-400" value="">
+                            <input type="text" id="workHours3" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-emerald-400" value="">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-600">勤務形態・シフトに関する補足</label>
-                            <input type="text" id="workHourMemo" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-blue-400" value="業務の都合により、上記いずれかの勤務時間を前月25日までにシフト表で明示する。">
+                            <input type="text" id="workHourMemo" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-emerald-400" value="業務の都合により、上記いずれかの勤務時間を前月25日までにシフト表で明示する。">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-medium text-gray-600">休日</label>
-                            <input type="text" id="holidays" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" value="シフトカレンダーによる（月8日〜10日）、年次有給休暇は法定通り付与">
+                            <input type="text" id="holidays" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="シフトカレンダーによる（月8日〜10日）、年次有給休暇は法定通り付与">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-600">基本給（月給/時給）</label>
-                            <input type="text" id="salary" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" placeholder="月給 250,000円">
+                            <input type="text" id="salary" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="月給 250,000円">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-600">諸手当・賃金支払いルール（締日・支払日、割増率）</label>
-                            <textarea id="allowances" rows="4" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none">【手当】通勤手当（実費支給・上限月2万円）
+                            <textarea id="allowances" rows="4" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none">【手当】通勤手当（実費支給・上限月2万円）
 【締切・支払】毎月20日締め・当月25日払（口座振込）
 【割増賃金】時間外労働：25%増、深夜労働：25%増、法定休日：35%増</textarea>
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-600">昇給・賞与・退職金</label>
-                            <input type="text" id="bonus" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" value="昇給：あり、賞与：年2回、退職金：なし">
+                            <input type="text" id="bonus" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="昇給：あり、賞与：年2回、退職金：なし">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-600">退職に関する事項</label>
-                            <input type="text" id="retirement" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" value="定年制（60歳・再雇用制度あり）、自己都合退職は1ヶ月前までに届出、解雇の手続きは就業規則の定めに従う">
+                            <input type="text" id="retirement" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="定年制（60歳・再雇用制度あり）、自己都合退職は1ヶ月前までに届出、解雇の手続きは就業規則の定めに従う">
                         </div>
                         
                         <div class="md:col-span-2 bg-yellow-50 p-3 rounded-md border border-yellow-200">
@@ -130,21 +183,22 @@
 
                         <div>
                             <label class="block text-xs font-medium text-gray-600">備考欄</label>
-                            <textarea id="notes" rows="2" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none" placeholder="特記事項なし"></textarea>
+                            <textarea id="notes" rows="2" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="特記事項なし"></textarea>
                         </div>
                     </div>
                 </div>
 
-                <button type="button" onclick="saveEmployee()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-200">
+                <button type="button" onclick="saveEmployee()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-md transition duration-200 cursor-pointer shadow-md">
                     クラウド名簿に保存 ＆ 通知書を生成
                 </button>
             </form>
         </div>
 
+        <!-- 下：労働条件通知書プレビュー -->
         <div id="previewContainer" class="mt-12 bg-white p-8 rounded-lg shadow-md border border-gray-300 relative hidden">
             <div class="flex justify-between items-center mb-6 no-print">
                 <h2 class="text-xl font-bold text-gray-800">労働条件通知書プレビュー</h2>
-                <button onclick="window.print()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md shadow transition">
+                <button onclick="window.print()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md shadow transition cursor-pointer">
                     この通知書を印刷 / PDF保存
                 </button>
             </div>
@@ -164,7 +218,13 @@
                     <tbody>
                         <tr><td class="border border-black p-3 bg-gray-50 w-1/4 font-bold">契約期間</td><td id="viewPeriod" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">就業の場所</td><td class="border border-black p-3"><span id="viewPlace" class="font-bold"></span><br><span id="viewChangeScope" class="text-xs text-gray-600"></span></td></tr>
-                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">従事すべき業務</td><td class="border border-black p-3">食品製造・調理および附帯する業務</td></tr>
+                        <tr>
+                            <td class="border border-black p-3 bg-gray-50 font-bold">従事すべき業務（所属）</td>
+                            <td class="border border-black p-3">
+                                <span id="viewRoles" class="font-bold bg-gray-100 px-2 py-0.5 border rounded text-xs text-emerald-800 mr-2"></span>
+                                食品製造・調理および附帯する業務
+                            </td>
+                        </tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">始業・終業の時刻等</td><td class="border border-black p-3"><div id="viewHoursList" class="space-y-1"></div><div id="viewHourMemo" class="text-xs text-gray-600 mt-2 pt-2 border-t border-gray-200"></div></td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">休日・休暇</td><td id="viewHolidays" class="border border-black p-3"></td></tr>
                         <tr><td class="border border-black p-3 bg-gray-50 font-bold">賃金に関する事項</td><td class="border border-black p-3"><div class="mb-2">【基本給】 <span id="viewSalary" class="font-bold"></span></div><div id="viewAllowances" class="text-gray-700 text-xs whitespace-pre-wrap leading-relaxed"></div></td></tr>
@@ -178,11 +238,11 @@
         </div>
     </div>
 
+    <!-- Firebase SDK の読み込みと設定 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // あなたのFirebaseプロジェクトの設定情報
         const firebaseConfig = {
             apiKey: "AIzaSyCHFT7qYSxmqMP7E8YT_-qrhgxAD6ZH5h4",
             authDomain: "stafflist-534ec.firebaseapp.com",
@@ -196,19 +256,47 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // 🔐 パスワードチェック処理
+        function checkPassword() {
+            const pass = document.getElementById('loginPassword').value;
+            // 簡易的な共通ログインパスワードを設定（必要に応じて変更してください）
+            if (pass === "kashiba2026") { 
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                sessionStorage.setItem('isLoggedIn', 'true');
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
         document.getElementById('currentDate').innerText = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
 
-        // 一覧ページから編集で戻ってきた場合の処理
         window.onload = function() {
+            // パスワードセッションチェック
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+            }
+
             const editTarget = localStorage.getItem('edit_target');
             if(editTarget) {
                 const emp = JSON.parse(editTarget);
                 document.getElementById('empFirebaseId').value = emp.id || '';
                 document.getElementById('empName').value = emp.name || '';
                 document.getElementById('empBirth').value = emp.birth || '';
+                document.getElementById('empPhone').value = emp.phone || '';
+                document.getElementById('empEmail').value = emp.email || '';
                 document.getElementById('empAddress').value = emp.address || '';
                 document.getElementById('empDept').value = emp.dept || '株式会社料理かしば';
+                document.getElementById('hireDate').value = emp.hireDate || '';
                 document.getElementById('workPlace').value = emp.place || '';
+                
+                // チェックボックスの復元
+                const roles = emp.roles || [];
+                document.querySelectorAll('input[name="empRoles"]').forEach(cb => {
+                    cb.checked = roles.includes(cb.value);
+                });
+
                 document.getElementById('changeScope').value = emp.changeScope || '';
                 document.getElementById('contractPeriod').value = emp.period || '';
                 document.getElementById('workHours1').value = emp.hours1 || '';
@@ -228,18 +316,27 @@
             }
         }
 
-        // 登録・上書き保存処理
         async function saveEmployee() {
             const existingId = document.getElementById('empFirebaseId').value;
             const docId = existingId ? existingId : "emp_" + Date.now();
+
+            // 選択された所属職種を取得
+            const selectedRoles = [];
+            document.querySelectorAll('input[name="empRoles"]:checked').forEach(cb => {
+                selectedRoles.push(cb.value);
+            });
 
             const emp = {
                 id: docId,
                 name: document.getElementById('empName').value,
                 birth: document.getElementById('empBirth').value,
+                phone: document.getElementById('empPhone').value,
+                email: document.getElementById('empEmail').value,
                 address: document.getElementById('empAddress').value,
                 dept: document.getElementById('empDept').value,
+                hireDate: document.getElementById('hireDate').value,
                 place: document.getElementById('workPlace').value,
+                roles: selectedRoles, // 配列データ
                 changeScope: document.getElementById('changeScope').value,
                 period: document.getElementById('contractPeriod').value,
                 hours1: document.getElementById('workHours1').value,
@@ -256,8 +353,8 @@
                 updatedAt: new Date().toISOString()
             };
 
-            if(!emp.name || !emp.address || !emp.place || !emp.changeScope) {
-                alert("必須項目を入力してください");
+            if(!emp.name || !emp.phone || !emp.email || !emp.hireDate) {
+                alert("必須項目（氏名・連絡先・メール・採用日等）を入力してください");
                 return;
             }
 
@@ -267,7 +364,7 @@
                 alert("Firebaseクラウド名簿に安全に保存・更新しました！");
             } catch (error) {
                 console.error("Error writing document: ", error);
-                alert("保存に失敗しました。Firestoreのルール（テストモード）が有効か確認してください。: " + error.message);
+                alert("保存に失敗しました: " + error.message);
             }
         }
 
@@ -277,6 +374,11 @@
             document.getElementById('viewCompanyName').innerText = emp.dept;
             document.getElementById('viewPeriod').innerText = emp.period;
             document.getElementById('viewPlace').innerText = emp.place;
+            
+            // 通知書用の所属表示
+            const rolesStr = emp.roles && emp.roles.length > 0 ? emp.roles.join('・') : '未設定';
+            document.getElementById('viewRoles').innerText = `【職種: ${rolesStr}】`;
+
             document.getElementById('viewChangeScope').innerText = `（※ 将来的な変更の範囲： ${emp.changeScope} ）`;
             
             const hoursListContainer = document.getElementById('viewHoursList');
@@ -296,7 +398,13 @@
             document.getElementById('previewContainer').scrollIntoView({ behavior: 'smooth' });
         }
 
+        // Enterキーでもログインできるように設定
+        document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkPassword();
+        });
+
         window.saveEmployee = saveEmployee;
+        window.checkPassword = checkPassword;
     </script>
 </body>
 </html>
