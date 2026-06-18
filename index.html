@@ -26,7 +26,7 @@
                 <label class="block text-xs font-bold text-gray-500 mb-1">パスワードを入力してください</label>
                 <input type="password" id="loginPassword" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none font-mono text-center text-xl tracking-widest" placeholder="••••••••">
             </div>
-            <button onclick="checkPassword()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition cursor-pointer shadow-md">
+            <button id="loginBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition cursor-pointer shadow-md">
                 認証してログイン
             </button>
             <p id="loginError" class="text-red-500 text-xs mt-3 hidden font-bold">⚠️ パスワードが正しくありません</p>
@@ -113,22 +113,21 @@
                             </div>
                         </div>
 
-                        <!-- ⚠️ 2024年4月法改正：変更の範囲の明示義務 -->
+                        <!-- 就業場所・業務の「変更の範囲」 -->
                         <div class="md:col-span-2">
                             <label class="block text-xs font-bold text-amber-800">【2024法改正必須】就業場所・業務の「変更の範囲」</label>
                             <input type="text" id="changeScope" required class="w-full mt-1 p-2 border border-amber-300 rounded-md focus:ring-2 focus:ring-amber-400 outline-none bg-amber-50/50" value="就業場所：会社の定める場所 ／ 従事すべき業務：会社の定める業務（原則変更なし）">
                         </div>
                         
-                        <!-- 🔄 契約期間（当年〜翌年自動設定エリア） -->
+                        <!-- 🔄 契約期間（当年〜翌年自動設定） -->
                         <div class="md:col-span-2">
                             <div class="flex justify-between items-center">
                                 <label class="block text-xs font-bold text-gray-700">契約期間（明示義務：期間・更新上限の有無）</label>
-                                <!-- 当年〜翌年自動更新ボタン -->
-                                <button type="button" onclick="setCurrentYearPeriod()" class="text-xs bg-amber-600 hover:bg-amber-700 text-white font-bold py-1 px-3 rounded-md transition cursor-pointer shadow-xs">
+                                <button type="button" id="setPeriodBtn" class="text-xs bg-amber-600 hover:bg-amber-700 text-white font-bold py-1 px-3 rounded-md transition cursor-pointer shadow-xs">
                                     🔄 当年の契約期間（3/6〜翌年3/5）に設定
                                 </button>
                             </div>
-                            <textarea id="contractPeriod" rows="3" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none font-medium bg-emerald-50/30">令和8年3月6日 〜 令和9年3月5日
+                            <textarea id="contractPeriod" rows="4" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none font-medium bg-emerald-50/30">令和8年3月6日 〜 令和9年3月5日
 【更新の有無】契約期間満了時の業務量、従事する労働者の勤務成績、態度、能力、会社の経営状況等により判断し、契約を更新することがある。
 【更新上限】更新回数の上限および通算契約期間の上限なし。</textarea>
                         </div>
@@ -197,7 +196,7 @@
                     </div>
                 </div>
 
-                <button type="button" onclick="saveEmployee()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-md transition duration-200 cursor-pointer shadow-md">
+                <button type="button" id="saveEmployeeBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-md transition duration-200 cursor-pointer shadow-md">
                     クラウド名簿に保存 ＆ 通知書を生成
                 </button>
             </form>
@@ -247,7 +246,7 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK & 制御ロジック -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -265,6 +264,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // 🔐 ログイン認証処理
         function checkPassword() {
             const pass = document.getElementById('loginPassword').value;
             if (pass === "kashiba2026") { 
@@ -276,70 +276,51 @@
             }
         }
 
-        // 🔄 クリックした「現在の西暦・和暦」から「当年3/6 〜 翌年3/5」に一発リセットする関数
+        // 🔄 クリックした「当年の3/6 〜 翌年3/5」に自動設定する関数
         function setCurrentYearPeriod() {
             const field = document.getElementById('contractPeriod');
-            
-            // ボタンがクリックされた時点の「現在の日付」を取得
             const now = new Date();
-            const currentYear = now.getFullYear(); // 例: 2026
+            const currentYear = now.getFullYear(); // 例：2026
 
-            // 西暦2026年は「令和8年」
+            // 和暦（令和）への変換ロジック
             const reiwaYear = currentYear - 2018; 
             const nextReiwaYear = reiwaYear + 1;
 
-            // 法令上必須とされる更新判断基準と上限の有無の文言
             const lawText = `\n【更新の有無】契約期間満了時の業務量、従事する労働者の勤務成績、態度、能力、会社の経営状況等により判断し、契約を更新することがある。\n【更新上限】更新回数の上限および通算契約期間の上限なし。`;
 
-            // テキストエリアに「当年3/6 〜 翌年3/5」の和暦と必須記載内容を設定
             field.value = `令和${reiwaYear}年3月6日 〜 令和${nextReiwaYear}年3月5日` + lawText;
         }
 
-        document.getElementById('currentDate').innerText = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
-
-        window.onload = function() {
-            if (sessionStorage.getItem('isLoggedIn') === 'true') {
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('mainContent').classList.remove('hidden');
-            }
-
-            const editTarget = localStorage.getItem('edit_target');
-            if(editTarget) {
-                const emp = JSON.parse(editTarget);
-                document.getElementById('empFirebaseId').value = emp.id || '';
-                document.getElementById('empName').value = emp.name || '';
-                document.getElementById('empBirth').value = emp.birth || '';
-                document.getElementById('empPhone').value = emp.phone || '';
-                document.getElementById('empEmail').value = emp.email || '';
-                document.getElementById('empAddress').value = emp.address || '';
-                document.getElementById('empDept').value = emp.dept || '株式会社料理かしば';
-                document.getElementById('hireDate').value = emp.hireDate || '';
-                document.getElementById('workPlace').value = emp.place || '';
-                
-                const roles = emp.roles || [];
-                document.querySelectorAll('input[name="empRoles"]').forEach(cb => {
-                    cb.checked = roles.includes(cb.value);
-                });
-
-                document.getElementById('changeScope').value = emp.changeScope || '';
-                document.getElementById('contractPeriod').value = emp.period || '';
-                document.getElementById('workHours1').value = emp.hours1 || '';
-                document.getElementById('workHours2').value = emp.hours2 || '';
-                document.getElementById('workHours3').value = emp.hours3 || '';
-                document.getElementById('workHourMemo').value = emp.hourMemo || '';
-                document.getElementById('holidays').value = emp.holidays || '';
-                document.getElementById('salary').value = emp.salary || '';
-                document.getElementById('allowances').value = emp.allowances || '';
-                document.getElementById('bonus').value = emp.bonus || '';
-                document.getElementById('retirement').value = emp.retirement || '';
-                document.getElementById('notes').value = emp.notes || '';
-                document.getElementById('empStatus').value = emp.status || 'active';
-                
-                previewNotice(emp);
-                localStorage.removeItem('edit_target');
-            }
+        // 📋 プレビュー生成表示処理
+        function previewNotice(emp) {
+            document.getElementById('previewContainer').classList.remove('hidden');
+            document.getElementById('viewEmpName').innerText = emp.name;
+            document.getElementById('viewCompanyName').innerText = emp.dept;
+            document.getElementById('viewPeriod').innerText = emp.period;
+            document.getElementById('viewPlace').innerText = emp.place;
+            
+            const rolesStr = emp.roles && emp.roles.length > 0 ? emp.roles.join('・') : '未設定';
+            document.getElementById('viewRoles').innerText = `【職種: ${rolesStr}】`;
+            document.getElementById('viewChangeScope').innerText = `（※ 将来的な変更の範囲： ${emp.changeScope} ）`;
+            
+            const hoursListContainer = document.getElementById('viewHoursList');
+            hoursListContainer.innerHTML = '';
+            if(emp.hours1) hoursListContainer.innerHTML += `<div>・パターン①：${emp.hours1}</div>`;
+            if(emp.hours2) hoursListContainer.innerHTML += `<div>・パターン②：${emp.hours2}</div>`;
+            if(emp.hours3) hoursListContainer.innerHTML += `<div>・パターン③：${emp.hours3}</div>`;
+            
+            document.getElementById('viewHourMemo').innerText = emp.hourMemo || '';
+            document.getElementById('viewHolidays').innerText = emp.holidays;
+            document.getElementById('viewSalary').innerText = emp.salary;
+            document.getElementById('viewAllowances').innerText = emp.allowances;
+            document.getElementById('viewBonus').innerText = emp.bonus;
+            document.getElementById('viewRetirement').innerText = emp.retirement;
+            document.getElementById('viewNotes').innerText = emp.notes || '特記事項なし';
+            
+            document.getElementById('previewContainer').scrollIntoView({ behavior: 'smooth' });
         }
 
+        // 💾 保存 & 送信処理
         async function saveEmployee() {
             const existingId = document.getElementById('empFirebaseId').value;
             const docId = existingId ? existingId : "emp_" + Date.now();
@@ -384,47 +365,66 @@
             try {
                 await setDoc(doc(db, "employees", docId), emp);
                 previewNotice(emp);
-                alert("Firebaseクラウド名簿に安全に保存・更新しました！");
+                alert("Firebaseクラウド名簿に安全に保存・更新し、通知書を発行しました！");
             } catch (error) {
                 alert("保存に失敗しました: " + error.message);
             }
         }
 
-        function previewNotice(emp) {
-            document.getElementById('previewContainer').classList.remove('hidden');
-            document.getElementById('viewEmpName').innerText = emp.name;
-            document.getElementById('viewCompanyName').innerText = emp.dept;
-            document.getElementById('viewPeriod').innerText = emp.period;
-            document.getElementById('viewPlace').innerText = emp.place;
-            
-            const rolesStr = emp.roles && emp.roles.length > 0 ? emp.roles.join('・') : '未設定';
-            document.getElementById('viewRoles').innerText = `【職種: ${rolesStr}】`;
-            document.getElementById('viewChangeScope').innerText = `（※ 将来的な変更の範囲： ${emp.changeScope} ）`;
-            
-            const hoursListContainer = document.getElementById('viewHoursList');
-            hoursListContainer.innerHTML = '';
-            if(emp.hours1) hoursListContainer.innerHTML += `<div>・パターン①：${emp.hours1}</div>`;
-            if(emp.hours2) hoursListContainer.innerHTML += `<div>・パターン②：${emp.hours2}</div>`;
-            if(emp.hours3) hoursListContainer.innerHTML += `<div>・パターン③：${emp.hours3}</div>`;
-            
-            document.getElementById('viewHourMemo').innerText = emp.hourMemo || '';
-            document.getElementById('viewHolidays').innerText = emp.holidays;
-            document.getElementById('viewSalary').innerText = emp.salary;
-            document.getElementById('viewAllowances').innerText = emp.allowances;
-            document.getElementById('viewBonus').innerText = emp.bonus;
-            document.getElementById('viewRetirement').innerText = emp.retirement;
-            document.getElementById('viewNotes').innerText = emp.notes || '特記事項なし';
-            
-            document.getElementById('previewContainer').scrollIntoView({ behavior: 'smooth' });
-        }
+        // 🎬 各種ボタンのクリックイベント紐付け（確実に動くように修正）
+        document.getElementById('loginBtn').addEventListener('click', checkPassword);
+        document.getElementById('setPeriodBtn').addEventListener('click', setCurrentYearPeriod);
+        document.getElementById('saveEmployeeBtn').addEventListener('click', saveEmployee);
 
         document.getElementById('loginPassword').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') checkPassword();
         });
 
-        window.saveEmployee = saveEmployee;
-        window.checkPassword = checkPassword;
-        window.setCurrentYearPeriod = setCurrentYearPeriod;
+        // ページ読み込み時の初期化処理
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('currentDate').innerText = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+            }
+
+            const editTarget = localStorage.getItem('edit_target');
+            if(editTarget) {
+                const emp = JSON.parse(editTarget);
+                document.getElementById('empFirebaseId').value = emp.id || '';
+                document.getElementById('empName').value = emp.name || '';
+                document.getElementById('empBirth').value = emp.birth || '';
+                document.getElementById('empPhone').value = emp.phone || '';
+                document.getElementById('empEmail').value = emp.email || '';
+                document.getElementById('empAddress').value = emp.address || '';
+                document.getElementById('empDept').value = emp.dept || '株式会社料理かしば';
+                document.getElementById('hireDate').value = emp.hireDate || '';
+                document.getElementById('workPlace').value = emp.place || '';
+                
+                const roles = emp.roles || [];
+                document.querySelectorAll('input[name="empRoles"]').forEach(cb => {
+                    cb.checked = roles.includes(cb.value);
+                });
+
+                document.getElementById('changeScope').value = emp.changeScope || '';
+                document.getElementById('contractPeriod').value = emp.period || '';
+                document.getElementById('workHours1').value = emp.hours1 || '';
+                document.getElementById('workHours2').value = emp.hours2 || '';
+                document.getElementById('workHours3').value = emp.hours3 || '';
+                document.getElementById('workHourMemo').value = emp.hourMemo || '';
+                document.getElementById('holidays').value = emp.holidays || '';
+                document.getElementById('salary').value = emp.salary || '';
+                document.getElementById('allowances').value = emp.allowances || '';
+                document.getElementById('bonus').value = emp.bonus || '';
+                document.getElementById('retirement').value = emp.retirement || '';
+                document.getElementById('notes').value = emp.notes || '';
+                document.getElementById('empStatus').value = emp.status || 'active';
+                
+                previewNotice(emp);
+                localStorage.removeItem('edit_target');
+            }
+        });
     </script>
 </body>
 </html>
