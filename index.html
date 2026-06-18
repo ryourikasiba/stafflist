@@ -27,6 +27,7 @@
         <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 no-print">
             <h2 class="text-xl font-semibold mb-4 text-gray-700">従業員情報の入力</h2>
             <form id="employeeForm" class="space-y-6">
+                <input type="hidden" id="empFirebaseId">
                 
                 <div>
                     <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-2">1. 基本情報</h3>
@@ -135,7 +136,7 @@
                 </div>
 
                 <button type="button" onclick="saveEmployee()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-200">
-                    名簿に登録して通知書を生成
+                    クラウド名簿に保存 ＆ 通知書を生成
                 </button>
             </form>
         </div>
@@ -177,41 +178,63 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // ⚠️ あとでここに Firebaseの設定情報（Config）を貼り付けます
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         document.getElementById('currentDate').innerText = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
 
+        // 一覧ページから編集で戻ってきた場合の処理
         window.onload = function() {
             const editTarget = localStorage.getItem('edit_target');
             if(editTarget) {
                 const emp = JSON.parse(editTarget);
-                document.getElementById('empName').value = emp.name;
-                document.getElementById('empBirth').value = emp.birth;
-                document.getElementById('empAddress').value = emp.address;
-                document.getElementById('empDept').value = emp.dept;
-                document.getElementById('workPlace').value = emp.place;
-                document.getElementById('changeScope').value = emp.changeScope;
-                document.getElementById('contractPeriod').value = emp.period;
-                document.getElementById('workHours1').value = emp.hours1;
-                document.getElementById('workHours2').value = emp.hours2;
-                document.getElementById('workHours3').value = emp.hours3;
-                document.getElementById('workHourMemo').value = emp.hourMemo;
-                document.getElementById('holidays').value = emp.holidays;
-                document.getElementById('salary').value = emp.salary;
-                document.getElementById('allowances').value = emp.allowances;
-                document.getElementById('bonus').value = emp.bonus;
-                document.getElementById('retirement').value = emp.retirement;
-                document.getElementById('notes').value = emp.notes;
-                document.getElementById('empStatus').value = emp.status || 'active'; // 初期値設定
+                document.getElementById('empFirebaseId').value = emp.id || '';
+                document.getElementById('empName').value = emp.name || '';
+                document.getElementById('empBirth').value = emp.birth || '';
+                document.getElementById('empAddress').value = emp.address || '';
+                document.getElementById('empDept').value = emp.dept || '株式会社料理かしば';
+                document.getElementById('workPlace').value = emp.place || '';
+                document.getElementById('changeScope').value = emp.changeScope || '';
+                document.getElementById('contractPeriod').value = emp.period || '';
+                document.getElementById('workHours1').value = emp.hours1 || '';
+                document.getElementById('workHours2').value = emp.hours2 || '';
+                document.getElementById('workHours3').value = emp.hours3 || '';
+                document.getElementById('workHourMemo').value = emp.hourMemo || '';
+                document.getElementById('holidays').value = emp.holidays || '';
+                document.getElementById('salary').value = emp.salary || '';
+                document.getElementById('allowances').value = emp.allowances || '';
+                document.getElementById('bonus').value = emp.bonus || '';
+                document.getElementById('retirement').value = emp.retirement || '';
+                document.getElementById('notes').value = emp.notes || '';
+                document.getElementById('empStatus').value = emp.status || 'active';
                 
                 previewNotice(emp);
                 localStorage.removeItem('edit_target');
             }
         }
 
-        function saveEmployee() {
-            let employees = JSON.parse(localStorage.getItem('employees')) || [];
+        // 登録・上書き保存処理
+        async function saveEmployee() {
+            const existingId = document.getElementById('empFirebaseId').value;
+            // 新規登録ならタイムスタンプをIDとし、編集なら既存IDを使用
+            const docId = existingId ? existingId : "emp_" + Date.now();
+
             const emp = {
-                id: Date.now(),
+                id: docId,
                 name: document.getElementById('empName').value,
                 birth: document.getElementById('empBirth').value,
                 address: document.getElementById('empAddress').value,
@@ -229,7 +252,8 @@
                 bonus: document.getElementById('bonus').value,
                 retirement: document.getElementById('retirement').value,
                 notes: document.getElementById('notes').value,
-                status: document.getElementById('empStatus').value // 在籍・退職ステータス
+                status: document.getElementById('empStatus').value,
+                updatedAt: new Date().toISOString()
             };
 
             if(!emp.name || !emp.address || !emp.place || !emp.changeScope) {
@@ -237,12 +261,15 @@
                 return;
             }
 
-            employees = employees.filter(e => e.name !== emp.name); 
-            employees.push(emp);
-            localStorage.setItem('employees', JSON.stringify(employees));
-            
-            previewNotice(emp);
-            alert("名簿に保存・更新しました！");
+            try {
+                // Firebaseに直接データをアップロード保存
+                await setDoc(doc(db, "employees", docId), emp);
+                previewNotice(emp);
+                alert("Firebaseクラウド名簿に安全に保存・更新しました！");
+            } catch (error) {
+                console.error("Error writing document: ", error);
+                alert("保存に失敗しました。設定を確認してください。: " + error.message);
+            }
         }
 
         function previewNotice(emp) {
@@ -269,6 +296,9 @@
             
             document.getElementById('previewContainer').scrollIntoView({ behavior: 'smooth' });
         }
+
+        // グローバルにアクセスできるようにwindowオブジェクトに紐付け
+        window.saveEmployee = saveEmployee;
     </script>
 </body>
 </html>
