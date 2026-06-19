@@ -12,6 +12,7 @@
             #printArea, #printArea * { visibility: visible; }
             #printArea { position: absolute; left: 0; top: 0; width: 100%; }
             .no-print { display: none; }
+            .page-break { break-before: page; }
         }
     </style>
 </head>
@@ -64,7 +65,7 @@
                             <input type="date" id="empBirth" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-600">電話番号（連絡先）</label>
+                            <label class="block text-xs font-medium text-gray-600">電話番号（本人連絡先）</label>
                             <input type="tel" id="empPhone" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="090-XXXX-XXXX">
                         </div>
                         <div>
@@ -74,6 +75,16 @@
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-gray-600">住所</label>
                             <input type="text" id="empAddress" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="東京都千代田区...">
+                        </div>
+                        
+                        <!-- 📞 緊急連絡先 -->
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 bg-gray-100 px-1 rounded inline-block">緊急連絡先 ①（氏名・続柄・電話番号など）</label>
+                            <input type="text" id="emergencyContact1" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="例：山田 花子（妻） 090-YYYY-YYYY">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 bg-gray-100 px-1 rounded inline-block">緊急連絡先 ②（氏名・続柄・電話番号など）</label>
+                            <input type="text" id="emergencyContact2" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="例：山田 一郎（父） 03-ZZZZ-ZZZZ">
                         </div>
                     </div>
                 </div>
@@ -119,7 +130,7 @@
                             <input type="text" id="changeScope" required class="w-full mt-1 p-2 border border-amber-300 rounded-md focus:ring-2 focus:ring-amber-400 outline-none bg-amber-50/50" value="就業場所：会社の定める場所 ／ 従事すべき業務：会社の定める業務（原則変更なし）">
                         </div>
                         
-                        <!-- 🔄 契約期間（当年〜翌年自動設定） -->
+                        <!-- 🔄 契約期間 -->
                         <div class="md:col-span-2">
                             <div class="flex justify-between items-center">
                                 <label class="block text-xs font-bold text-gray-700">契約期間（明示義務：期間・更新上限の有無）</label>
@@ -159,25 +170,25 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-medium text-gray-600">休日・休暇（明示義務：休日、有給休暇、特別休暇）</label>
+                            <label class="block text-xs font-medium text-gray-600">休日・休暇</label>
                             <input type="text" id="holidays" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="シフトカレンダーによる（月8日〜10日休）、年次有給休暇は雇入れ日から6ヶ月継続勤務後、法定通り付与。">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-600">基本給（明示義務：賃金の決定、計算方法）</label>
+                            <label class="block text-xs font-medium text-gray-600">基本給</label>
                             <input type="text" id="salary" required class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="月給 250,000円 （または時給 1,100円）">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600">諸手当・賃金の締切・支払日・割増率（全て明示義務）</label>
+                            <label class="block text-xs font-medium text-gray-600">諸手当・賃金の締切・支払日・割増率</label>
                             <textarea id="allowances" rows="4" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none">【諸手当】通勤手当（実費支給・上限月2万円）、役職手当
 【賃金締切日・支払日】毎月20日締め・当月25日支払（口座振込による）
 【割増賃金率】時間外：25%増、深夜（22時〜5時）：25%増、法定休日：35%増</textarea>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-600">昇給・賞与・退職金（有無の明示義務）</label>
+                            <label class="block text-xs font-medium text-gray-600">昇給・賞与・退職金</label>
                             <input type="text" id="bonus" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="昇給：あり（年1回査定）、賞与：あり（年2回、業績による）、退職金：なし">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600">退職・解雇に関する事項（明示義務：事由、手続き、定年など）</label>
+                            <label class="block text-xs font-medium text-gray-600">退職・解雇に関する事項</label>
                             <input type="text" id="retirement" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" value="自己都合退職は1ヶ月前までに届出を要する。定年制（60歳、希望者は65歳まで再雇用）。解雇の事由および手続きは、就業規則第〇条に定めるところによる。">
                         </div>
                         
@@ -189,59 +200,168 @@
                             </select>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-medium text-gray-600">備考欄</label>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600">備考欄（通知書に印字されます）</label>
                             <textarea id="notes" rows="2" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="特記事項なし"></textarea>
                         </div>
                     </div>
                 </div>
 
+                <!-- 📝 4. 面接・採用担当者記入欄（雇用報告書に印字されます） -->
+                <div class="border-t-2 border-dashed border-gray-300 pt-4 bg-gray-50/50 p-4 rounded-lg">
+                    <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center">
+                        📋 4. 面接・採用担当者記入欄 <span class="ml-2 text-xs font-normal text-gray-500">（※ここに入力した内容は2枚目の「雇用報告書」に自動印字されます）</span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">面接担当者名</label>
+                            <input type="text" id="interviewerName" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-slate-400" placeholder="山下 真弘">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">面接実施日</label>
+                            <input type="date" id="interviewDate" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-slate-400">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600">面接評価・採用理由・特記メモ</label>
+                            <textarea id="interviewNotes" rows="3" class="w-full mt-1 p-2 border rounded-md bg-white outline-none focus:ring-2 focus:ring-slate-400" placeholder="（例：調理経験豊富、シフトの融通が利くため採用。人柄良好。）"></textarea>
+                        </div>
+                    </div>
+                </div>
+
                 <button type="button" id="saveEmployeeBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-md transition duration-200 cursor-pointer shadow-md">
-                    クラウド名簿に保存 ＆ 通知書を生成
+                    クラウド名簿に保存 ＆ 通知書・報告書を生成
                 </button>
             </form>
         </div>
 
-        <!-- 労働条件通知書プレビュー -->
+        <!-- 印刷・PDFプレビューコンテナ -->
         <div id="previewContainer" class="mt-12 bg-white p-8 rounded-lg shadow-md border border-gray-300 relative hidden">
             <div class="flex justify-between items-center mb-6 no-print">
-                <h2 class="text-xl font-bold text-gray-800">労働条件通知書プレビュー</h2>
-                <button onclick="window.print()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md shadow transition cursor-pointer">
-                    この通知書を印刷 / PDF保存
+                <h2 class="text-xl font-bold text-gray-800">印刷・PDF出力プレビュー</h2>
+                <button onclick="window.print()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-md shadow transition cursor-pointer text-base">
+                    🖨️ まとめて印刷 / PDF保存 (全2ページ)
                 </button>
             </div>
 
-            <div id="printArea" class="p-8 border-2 border-double border-gray-400 bg-white min-h-[1100px] text-sm leading-relaxed">
-                <h1 class="text-center text-2xl font-bold tracking-widest mb-8">労 働 条 件 通 知 書</h1>
-                <div class="flex justify-between mb-6">
-                    <div><span id="viewEmpName" class="text-lg font-bold border-b border-black pr-8"></span> 殿</div>
-                    <div class="text-right">
-                        <p>通知日：<span id="currentDate"></span></p>
-                        <p class="font-bold mt-2">使用者：<span id="viewCompanyName"></span></p>
-                        <p>代表取締役 山下 真弘 印</p>
+            <!-- 📄 全体印刷用コンテナ -->
+            <div id="printArea" class="bg-white text-sm leading-relaxed text-black">
+                
+                <!-- 【ページ1】労働条件通知書 -->
+                <div class="p-8 border-2 border-double border-gray-400 min-h-[1050px]">
+                    <h1 class="text-center text-2xl font-bold tracking-widest mb-8">労 働 条 件 通 知 書</h1>
+                    <div class="flex justify-between mb-6">
+                        <div><span id="viewEmpName" class="text-lg font-bold border-b border-black pr-8"></span> 殿</div>
+                        <div class="text-right">
+                            <p>通知日：<span id="currentDate"></span></p>
+                            <p class="font-bold mt-2">使用者：<span id="viewCompanyName"></span></p>
+                            <p>代表取締役 山下 真弘 印</p>
+                        </div>
+                    </div>
+                    <p class="mb-6">あなたとの労働契約について、その労働条件は下記のとおりです。</p>
+                    <table class="w-full border-collapse border border-black mb-6">
+                        <tbody>
+                            <tr><td class="border border-black p-3 bg-gray-50 w-1/4 font-bold">契約期間・更新上限</td><td id="viewPeriod" class="border border-black p-3 whitespace-pre-wrap font-medium"></td></tr>
+                            <tr><td class="border border-black p-3 bg-gray-50 font-bold">就業の場所</td><td class="border border-black p-3"><span id="viewPlace" class="font-bold"></span><br><span id="viewChangeScope" class="text-xs text-gray-600"></span></td></tr>
+                            <tr>
+                                <td class="border border-black p-3 bg-gray-50 font-bold">従事すべき業務（所属）</td>
+                                <td class="border border-black p-3">
+                                    <span id="viewRoles" class="font-bold bg-gray-100 px-2 py-0.5 border rounded text-xs text-emerald-800 mr-2"></span>
+                                    食品製造・調理および附帯する業務
+                                </td>
+                            </tr>
+                            <tr><td class="border border-black p-3 bg-gray-50 font-bold">始業・終業の時刻等</td><td class="border border-black p-3"><div id="viewHoursList" class="space-y-1"></div><div id="viewHourMemo" class="text-xs text-gray-600 mt-2 pt-2 border-t border-gray-200"></div></td></tr>
+                            <tr><td class="border border-black p-3 bg-gray-50 font-bold">休日・休暇</td><td id="viewHolidays" class="border border-black p-3"></td></tr>
+                            <tr><td class="border border-black p-3 bg-gray-50 font-bold">賃金に関する事項</td><td class="border border-black p-3"><div class="mb-2">【基本給】 <span id="viewSalary" class="font-bold"></span></div><div id="viewAllowances" class="text-gray-700 text-xs whitespace-pre-wrap leading-relaxed"></div></td></tr>
+                            <tr><td class="border border-black p-3 bg-gray-50 font-bold">昇給・賞与・退職金</td><td id="viewBonus" class="border border-black p-3"></td></tr>
+                            <tr><td class="border border-black p-3 bg-gray-50 font-bold">退職・解雇に関する事項</td><td id="viewRetirement" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
+                            <tr><td class="border border-black p-3 bg-gray-50 font-bold">備考</td><td id="viewNotes" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
+                        </tbody>
+                    </table>
+                    <p class="text-xs text-right text-gray-500">※本書面は労働基準法第15条第1項、および改正労働基準法施行規則等に基づく書面の交付を兼ねています。</p>
+                </div>
+
+                <!-- 【ページ2】雇用報告書（自動で改ページされる設定） -->
+                <div class="page-break p-8 border-2 border-double border-gray-400 min-h-[1050px] mt-12">
+                    <h1 class="text-center text-2xl font-bold tracking-widest mb-6">雇 用 報 告 書</h1>
+                    <p class="text-right text-xs mb-4">作成日：<span id="reportCreateDate"></span></p>
+                    
+                    <div class="mb-6 bg-slate-100 p-3 rounded border border-slate-300 font-bold text-slate-800 text-sm">
+                        ※ 本書面は、採用決定に伴う社内管理用の雇用報告および面接稟議記録書です。（労働条件通知書とは異なり、社内保管用となります）
+                    </div>
+
+                    <h2 class="text-base font-bold border-l-4 border-slate-700 pl-2 mb-3">1. 被雇用者 基本情報</h2>
+                    <table class="w-full border-collapse border border-black mb-6 text-xs">
+                        <tbody>
+                            <tr>
+                                <td class="border border-black p-2.5 bg-gray-50 w-1/4 font-bold">氏名</td>
+                                <td id="repEmpName" class="border border-black p-2.5 font-bold text-sm"></td>
+                                <td class="border border-black p-2.5 bg-gray-50 w-1/4 font-bold">生年月日</td>
+                                <td id="repEmpBirth" class="border border-black p-2.5"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-black p-2.5 bg-gray-50 font-bold">電話番号</td>
+                                <td id="repEmpPhone" class="border border-black p-2.5"></td>
+                                <td class="border border-black p-2.5 bg-gray-50 font-bold">メールアドレス</td>
+                                <td id="repEmpEmail" class="border border-black p-2.5"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-black p-2.5 bg-gray-50 font-bold">現住所</td>
+                                <td id="repEmpAddress" colspan="3" class="border border-black p-2.5"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-black p-2.5 bg-gray-50 font-bold">緊急連絡先 ①</td>
+                                <td id="repEmergency1" class="border border-black p-2.5"></td>
+                                <td class="border border-black p-2.5 bg-gray-50 font-bold">緊急連絡先 ②</td>
+                                <td id="repEmergency2" class="border border-black p-2.5"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h2 class="text-base font-bold border-l-4 border-slate-700 pl-2 mb-3">2. 採用・配属条件概要</h2>
+                    <table class="w-full border-collapse border border-black mb-6 text-xs">
+                        <tbody>
+                            <tr>
+                                <td class="border border-black p-2.5 bg-gray-50 w-1/4 font-bold">所属会社</td>
+                                <td id="repDept" class="border border-black p-2.5 font-bold"></td>
+                                <td class="border border-black p-2.5 bg-gray-50 w-1/4 font-bold">入社・採用日</td>
+                                <td id="repHireDate" class="border border-black p-2.5 font-bold"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-black p-2.5 bg-gray-50 font-bold">初期就業場所</td>
+                                <td id="repPlace" class="border border-black p-2.5"></td>
+                                <td class="border border-black p-2.5 bg-gray-50 font-bold">従事すべき職種</td>
+                                <td id="repRoles" class="border border-black p-2.5 font-bold"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-black p-2.5 bg-gray-50 font-bold">基本給・賃金体系</td>
+                                <td id="repSalary" colspan="3" class="border border-black p-2.5 font-bold text-slate-900"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h2 class="text-base font-bold border-l-4 border-slate-700 pl-2 mb-3 text-emerald-800">3. 面接実施・選考メモ（社内限定）</h2>
+                    <table class="w-full border-collapse border border-black text-xs">
+                        <tbody>
+                            <tr>
+                                <td class="border border-black p-3 bg-gray-50 w-1/4 font-bold">面接実施日</td>
+                                <td id="repInterviewDate" class="border border-black p-3"></td>
+                                <td class="border border-black p-3 bg-gray-50 w-1/4 font-bold">面接担当者</td>
+                                <td id="repInterviewerName" class="border border-black p-3 font-bold text-sm"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-black p-4 bg-gray-50 font-bold">面接評価・採用理由<br>および特記事項</td>
+                                <td id="repInterviewNotes" colspan="3" class="border border-black p-4 whitespace-pre-wrap leading-relaxed min-h-[120px]"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="mt-16 grid grid-cols-3 gap-4 text-center text-xs">
+                        <div class="border border-gray-400 p-6 h-24 flex flex-col justify-between"><div>経営役員 決裁</div><div class="text-right text-gray-400">印</div></div>
+                        <div class="border border-gray-400 p-6 h-24 flex flex-col justify-between"><div>採用担当・確認</div><div class="text-right text-gray-400">印</div></div>
+                        <div class="border border-gray-400 p-6 h-24 flex flex-col justify-between"><div>受付・名簿入力</div><div class="text-right text-gray-400">印</div></div>
                     </div>
                 </div>
-                <p class="mb-6">あなたとの労働契約について、その労働条件は下記のとおりです。</p>
-                <table class="w-full border-collapse border border-black mb-6">
-                    <tbody>
-                        <tr><td class="border border-black p-3 bg-gray-50 w-1/4 font-bold">契約期間・更新上限</td><td id="viewPeriod" class="border border-black p-3 whitespace-pre-wrap font-medium"></td></tr>
-                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">就業の場所</td><td class="border border-black p-3"><span id="viewPlace" class="font-bold"></span><br><span id="viewChangeScope" class="text-xs text-gray-600"></span></td></tr>
-                        <tr>
-                            <td class="border border-black p-3 bg-gray-50 font-bold">従事すべき業務（所属）</td>
-                            <td class="border border-black p-3">
-                                <span id="viewRoles" class="font-bold bg-gray-100 px-2 py-0.5 border rounded text-xs text-emerald-800 mr-2"></span>
-                                食品製造・調理および附帯する業務
-                            </td>
-                        </tr>
-                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">始業・終業の時刻等</td><td class="border border-black p-3"><div id="viewHoursList" class="space-y-1"></div><div id="viewHourMemo" class="text-xs text-gray-600 mt-2 pt-2 border-t border-gray-200"></div></td></tr>
-                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">休日・休暇</td><td id="viewHolidays" class="border border-black p-3"></td></tr>
-                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">賃金に関する事項</td><td class="border border-black p-3"><div class="mb-2">【基本給】 <span id="viewSalary" class="font-bold"></span></div><div id="viewAllowances" class="text-gray-700 text-xs whitespace-pre-wrap leading-relaxed"></div></td></tr>
-                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">昇給・賞与・退職金</td><td id="viewBonus" class="border border-black p-3"></td></tr>
-                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">退職・解雇に関する事項</td><td id="viewRetirement" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
-                        <tr><td class="border border-black p-3 bg-gray-50 font-bold">備考</td><td id="viewNotes" class="border border-black p-3 whitespace-pre-wrap"></td></tr>
-                    </tbody>
-                </table>
-                <p class="text-xs text-right text-gray-500">※本書面は労働基準法第15条第1項、および改正労働基準法施行規則等に基づく書面の交付を兼ねています。</p>
+
             </div>
         </div>
     </div>
@@ -276,30 +396,30 @@
             }
         }
 
-        // 🔄 クリックした「当年の3/6 〜 翌年3/5」に自動設定する関数
+        // 🔄 クリックした「当年の3/6 〜 翌年3/5」に自動設定
         function setCurrentYearPeriod() {
             const field = document.getElementById('contractPeriod');
             const now = new Date();
-            const currentYear = now.getFullYear(); // 例：2026
-
-            // 和暦（令和）への変換ロジック
+            const currentYear = now.getFullYear();
             const reiwaYear = currentYear - 2018; 
             const nextReiwaYear = reiwaYear + 1;
-
             const lawText = `\n【更新の有無】契約期間満了時の業務量、従事する労働者の勤務成績、態度、能力、会社の経営状況等により判断し、契約を更新することがある。\n【更新上限】更新回数の上限および通算契約期間の上限なし。`;
-
             field.value = `令和${reiwaYear}年3月6日 〜 令和${nextReiwaYear}年3月5日` + lawText;
         }
 
-        // 📋 プレビュー生成表示処理
+        // 📋 プレビュー生成・表示処理（通知書と報告書の両方に連動）
         function previewNotice(emp) {
             document.getElementById('previewContainer').classList.remove('hidden');
+            const rolesStr = emp.roles && emp.roles.length > 0 ? emp.roles.join('・') : '未設定';
+            const formattedBirth = emp.birth ? new Date(emp.birth).toLocaleDateString('ja-JP', {year: 'numeric', month: 'long', day: 'numeric'}) : '未入力';
+            const formattedHire = emp.hireDate ? new Date(emp.hireDate).toLocaleDateString('ja-JP', {year: 'numeric', month: 'long', day: 'numeric'}) : '未入力';
+            const formattedInterview = emp.interviewDate ? new Date(emp.interviewDate).toLocaleDateString('ja-JP', {year: 'numeric', month: 'long', day: 'numeric'}) : '未実施';
+
+            // --- 📄 1. 労働条件通知書側の連動 ---
             document.getElementById('viewEmpName').innerText = emp.name;
             document.getElementById('viewCompanyName').innerText = emp.dept;
             document.getElementById('viewPeriod').innerText = emp.period;
             document.getElementById('viewPlace').innerText = emp.place;
-            
-            const rolesStr = emp.roles && emp.roles.length > 0 ? emp.roles.join('・') : '未設定';
             document.getElementById('viewRoles').innerText = `【職種: ${rolesStr}】`;
             document.getElementById('viewChangeScope').innerText = `（※ 将来的な変更の範囲： ${emp.changeScope} ）`;
             
@@ -317,6 +437,26 @@
             document.getElementById('viewRetirement').innerText = emp.retirement;
             document.getElementById('viewNotes').innerText = emp.notes || '特記事項なし';
             
+            // --- 📄 2. 雇用報告書側の連動 ---
+            document.getElementById('repEmpName').innerText = emp.name;
+            document.getElementById('repEmpBirth').innerText = formattedBirth;
+            document.getElementById('repEmpPhone').innerText = emp.phone;
+            document.getElementById('repEmpEmail').innerText = emp.email;
+            document.getElementById('repEmpAddress').innerText = emp.address;
+            document.getElementById('repEmergency1').innerText = emp.emergencyContact1 || '（未入力）';
+            document.getElementById('repEmergency2').innerText = emp.emergencyContact2 || '（未入力）';
+            
+            document.getElementById('repDept').innerText = emp.dept;
+            document.getElementById('repHireDate').innerText = formattedHire;
+            document.getElementById('repPlace').innerText = emp.place;
+            document.getElementById('repRoles').innerText = rolesStr;
+            document.getElementById('repSalary').innerText = emp.salary;
+            
+            document.getElementById('repInterviewerName').innerText = emp.interviewerName || '未記入';
+            document.getElementById('repInterviewDate').innerText = formattedInterview;
+            document.getElementById('repInterviewNotes').innerText = emp.interviewNotes || '面接メモ・評価の入力はありません。';
+
+            // スクロール移動
             document.getElementById('previewContainer').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -337,6 +477,8 @@
                 phone: document.getElementById('empPhone').value,
                 email: document.getElementById('empEmail').value,
                 address: document.getElementById('empAddress').value,
+                emergencyContact1: document.getElementById('emergencyContact1').value,
+                emergencyContact2: document.getElementById('emergencyContact2').value,
                 dept: document.getElementById('empDept').value,
                 hireDate: document.getElementById('hireDate').value,
                 place: document.getElementById('workPlace').value,
@@ -354,6 +496,9 @@
                 retirement: document.getElementById('retirement').value,
                 notes: document.getElementById('notes').value,
                 status: document.getElementById('empStatus').value,
+                interviewerName: document.getElementById('interviewerName').value,
+                interviewDate: document.getElementById('interviewDate').value,
+                interviewNotes: document.getElementById('interviewNotes').value,
                 updatedAt: new Date().toISOString()
             };
 
@@ -365,13 +510,13 @@
             try {
                 await setDoc(doc(db, "employees", docId), emp);
                 previewNotice(emp);
-                alert("Firebaseクラウド名簿に安全に保存・更新し、通知書を発行しました！");
+                alert("Firebaseクラウド名簿に安全に保存・更新し、通知書＆報告書を発行しました！");
             } catch (error) {
                 alert("保存に失敗しました: " + error.message);
             }
         }
 
-        // 🎬 各種ボタンのクリックイベント紐付け（確実に動くように修正）
+        // 🎬 各種ボタンのクリックイベント紐付け
         document.getElementById('loginBtn').addEventListener('click', checkPassword);
         document.getElementById('setPeriodBtn').addEventListener('click', setCurrentYearPeriod);
         document.getElementById('saveEmployeeBtn').addEventListener('click', saveEmployee);
@@ -382,7 +527,9 @@
 
         // ページ読み込み時の初期化処理
         window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('currentDate').innerText = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+            const todayStr = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('currentDate').innerText = todayStr;
+            document.getElementById('reportCreateDate').innerText = todayStr;
 
             if (sessionStorage.getItem('isLoggedIn') === 'true') {
                 document.getElementById('loginScreen').classList.add('hidden');
@@ -398,6 +545,8 @@
                 document.getElementById('empPhone').value = emp.phone || '';
                 document.getElementById('empEmail').value = emp.email || '';
                 document.getElementById('empAddress').value = emp.address || '';
+                document.getElementById('emergencyContact1').value = emp.emergencyContact1 || '';
+                document.getElementById('emergencyContact2').value = emp.emergencyContact2 || '';
                 document.getElementById('empDept').value = emp.dept || '株式会社料理かしば';
                 document.getElementById('hireDate').value = emp.hireDate || '';
                 document.getElementById('workPlace').value = emp.place || '';
@@ -420,6 +569,9 @@
                 document.getElementById('retirement').value = emp.retirement || '';
                 document.getElementById('notes').value = emp.notes || '';
                 document.getElementById('empStatus').value = emp.status || 'active';
+                document.getElementById('interviewerName').value = emp.interviewerName || '';
+                document.getElementById('interviewDate').value = emp.interviewDate || '';
+                document.getElementById('interviewNotes').value = emp.interviewNotes || '';
                 
                 previewNotice(emp);
                 localStorage.removeItem('edit_target');
