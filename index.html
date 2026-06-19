@@ -89,7 +89,7 @@
                             <input type="text" id="emergencyContact2" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="例：山田 一郎（父） 03-ZZZZ-ZZZZ">
                         </div>
 
-                        <!-- 🚗 通勤手段（報告書必須項目） -->
+                        <!-- 🚗 通勤手段 -->
                         <div class="md:col-span-2">
                             <label class="block text-xs font-bold text-gray-700">通勤手段 <span class="text-blue-600 font-normal">（報告書必須）</span></label>
                             <input type="text" id="commuteMethod" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-emerald-400 outline-none bg-emerald-50/10" value="マイカー通勤（無料駐車場利用可）">
@@ -201,8 +201,8 @@
                             <input type="text" id="salaryTraining" class="w-full mt-1 p-2 border border-orange-300 rounded-md focus:ring-2 focus:ring-orange-400 outline-none bg-orange-50/20" value="時給 1,050円 （研修期間：3ヶ月間）">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-bold text-emerald-800">給料【研修終了後 / 通常】 <span class="text-blue-600 font-normal">（報告書必須）</span></label>
-                            <input type="text" id="salary" class="w-full mt-1 p-2 border border-emerald-300 rounded-md focus:ring-2 focus:ring-emerald-400 outline-none bg-emerald-50/20" value="月給 250,000円（基本給：220,000円、諸手当：30,000円）">
+                            <label class="block text-xs font-bold text-emerald-800">給料【研修終了後 / 通常】 <span class="text-indigo-600 font-semibold text-[10px]">※試用・研修に時給入力があれば、ここは未入力でも生成可能です</span></label>
+                            <input type="text" id="salary" class="w-full mt-1 p-2 border border-emerald-300 rounded-md focus:ring-2 focus:ring-emerald-400 outline-none bg-emerald-50/20" value="" placeholder="例：月給 250,000円（※未入力時は上記研修時給を基準に反映）">
                         </div>
 
                         <div class="md:col-span-2">
@@ -414,7 +414,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let currentActiveMode = ''; // 'notice' または 'report'
+        let currentActiveMode = ''; 
 
         // 🔐 パスワード認証
         function checkPassword() {
@@ -440,6 +440,17 @@
             document.querySelectorAll('input[name="empRoles"]:checked').forEach(cb => selectedRoles.push(cb.value));
             
             const existingId = document.getElementById('empFirebaseId').value;
+            
+            let salaryVal = document.getElementById('salary').value.trim();
+            const probationVal = document.getElementById('salaryProbation').value.trim();
+            const trainingVal = document.getElementById('salaryTraining').value.trim();
+
+            // ⭐ 変更ロジック：試用・研修欄に「時給」という文言があり、かつ「通常給料(月給)」欄が空の場合
+            if (!salaryVal && (probationVal.includes("時給") || trainingVal.includes("時給"))) {
+                // 研修終了後も自動的に時給形態が継続されるものとして補完
+                salaryVal = trainingVal ? `${trainingVal} (研修終了後・通常)` : `${probationVal} (通常)`;
+            }
+
             return {
                 id: existingId ? existingId : "emp_" + Date.now(),
                 name: document.getElementById('empName').value,
@@ -456,16 +467,16 @@
                 roles: selectedRoles,
                 changeScope: document.getElementById('changeScope').value,
                 period: document.getElementById('contractPeriod').value,
-                attendanceDays: document.getElementById('attendanceDays').value, // 追加
+                attendanceDays: document.getElementById('attendanceDays').value, 
                 workDays: document.getElementById('workDays').value,
                 hours1: document.getElementById('workHours1').value,
                 hours2: document.getElementById('workHours2').value,
                 hours3: document.getElementById('workHours3').value,
                 hourMemo: document.getElementById('workHourMemo').value,
                 holidays: document.getElementById('holidays').value,
-                salaryProbation: document.getElementById('salaryProbation').value, // 追加
-                salaryTraining: document.getElementById('salaryTraining').value,
-                salary: document.getElementById('salary').value,
+                salaryProbation: probationVal, 
+                salaryTraining: trainingVal,
+                salary: salaryVal, // 補完された値が適用
                 allowances: document.getElementById('allowances').value,
                 bonus: document.getElementById('bonus').value,
                 retirement: document.getElementById('retirement').value,
@@ -483,7 +494,6 @@
             currentActiveMode = mode;
             document.getElementById('previewContainer').classList.remove('hidden');
             
-            // 日付自動セット
             const todayStr = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
             document.querySelectorAll('.currentDateText').forEach(el => el.innerText = todayStr);
 
@@ -510,7 +520,6 @@
                 document.getElementById('repEmpBirth').innerText = emp.birth ? new Date(emp.birth).toLocaleDateString('ja-JP') : '未入力';
                 document.getElementById('repEmpAddress').innerText = emp.address || '未入力';
                 
-                // 雇用報告書用 必須割り当て
                 document.getElementById('repPlace').innerText = emp.place;
                 document.getElementById('repRoles').innerText = rolesStr;
                 document.getElementById('repHireDate').innerText = emp.hireDate ? new Date(emp.hireDate).toLocaleDateString('ja-JP') : '';
@@ -548,20 +557,19 @@
             renderPreview(emp, 'notice');
         });
 
-        // 🔘 雇用報告書ボタンのアクション (指定項目厳格チェック)
+        // 🔘 雇用報告書ボタンのアクション (時給入力時は通常給の入力をパス)
         document.getElementById('btnReport').addEventListener('click', async () => {
             const emp = getFormData();
             
-            // 雇用報告書必須バリデーション
+            // 雇用報告書必須バリデーション (emp.salaryは空だった場合でもgetFormData内で自動的に補完されています)
             if(!emp.place || emp.roles.length === 0 || !emp.hireDate || !emp.attendanceDays || !emp.workDays || !emp.holidays || !emp.hours1 || !emp.commuteMethod || !emp.salaryProbation || !emp.salaryTraining || !emp.salary || !emp.interviewerName || !emp.interviewDate || !emp.notes) {
-                alert("【雇用報告書 必須エラー】\n以下の項目がすべて入力されているか確認してください。\n・就業の場所、職種\n・雇い入れ日\n・出勤日、勤務日、休日、勤務時間\n・通勤手段\n・給料（試用、研修、通常すべて）\n・面接、採用担当者、面接日\n・備考");
+                alert("【雇用報告書 必須エラー】\n以下の項目がすべて入力されているか確認してください。\n・就業の場所、職種\n・雇い入れ日\n・出勤日、勤務日、休日、勤務時間\n・通勤手段\n・給料（試用・研修・通常のいずれか）\n・面接、採用担当者、面接日\n・備考");
                 return;
             }
             await cloudSave(emp);
             renderPreview(emp, 'report');
         });
 
-        // 🖨️ 実際の印刷トリガー
         document.getElementById('realPrintBtn').addEventListener('click', () => {
             window.print();
         });
@@ -576,7 +584,6 @@
                 document.getElementById('mainContent').classList.remove('hidden');
             }
             
-            // 名簿一覧ページから編集ターゲットが渡された場合の展開
             const editTarget = localStorage.getItem('edit_target');
             if(editTarget) {
                 const emp = JSON.parse(editTarget);
