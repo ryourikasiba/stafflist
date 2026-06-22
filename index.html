@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>従業員登録・書類作成システム - 株式会社料理かしば</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @media print {
@@ -17,12 +18,15 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
 
+    <!-- 🖥️ メイン画面 -->
     <div class="max-w-6xl mx-auto p-4 md:p-6">
         
+        <!-- ヘッダー -->
         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 border-b-2 border-emerald-600 pb-3 no-print">
             <div>
                 <div class="text-emerald-700 font-black text-xl tracking-wider">株式会社料理かしば</div>
                 <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mt-0.5">従業員登録 ＆ 書類自動作成システム</h1>
+                <!-- 状態インジケーター -->
                 <div id="editModeIndicator" class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 hidden">
                     <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
                     現在、既存の従業員データを編集しています（上書き保存モード）
@@ -39,8 +43,10 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 no-print items-start">
-            <form id="employeeForm" class="lg:col-span-7 bg-white p-4 md:p-6 rounded-xl shadow-md border border-gray-100 space-y-5">
+            <!-- 📝 左側：入力フォーム（7カラム） -->
+            <form id="employeeForm" class="lg:col-span-7 bg-white p-4 md:p-6 rounded-xl shadow-md border border-gray-100 space-y-5" onsubmit="return false;">
                 
+                <!-- セクション1: 基本情報 -->
                 <div>
                     <h2 class="text-sm font-black text-emerald-700 border-l-4 border-emerald-600 pl-2 mb-3">基本情報</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
@@ -79,6 +85,7 @@
                     </div>
                 </div>
 
+                <!-- セクション2: 雇用契約内容 -->
                 <div>
                     <h2 class="text-sm font-black text-emerald-700 border-l-4 border-emerald-600 pl-2 mb-3">雇用契約内容</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
@@ -128,6 +135,7 @@
                     </div>
                 </div>
 
+                <!-- セクション3: 勤務時間・休日 -->
                 <div>
                     <h2 class="text-sm font-black text-emerald-700 border-l-4 border-emerald-600 pl-2 mb-3">勤務時間・休日</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
@@ -162,6 +170,7 @@
                     </div>
                 </div>
 
+                <!-- セクション4: 給与・手当・退職規定 -->
                 <div>
                     <h2 class="text-sm font-black text-emerald-700 border-l-4 border-emerald-600 pl-2 mb-3">給与・手当・退職規定</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
@@ -192,6 +201,7 @@
                     </div>
                 </div>
 
+                <!-- セクション5: 面接情報 -->
                 <div>
                     <h2 class="text-sm font-black text-emerald-700 border-l-4 border-emerald-600 pl-2 mb-3">選考・面接メモ（※報告書用）</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
@@ -210,6 +220,7 @@
                     </div>
                 </div>
 
+                <!-- 🔘 アクションボタン群 -->
                 <div class="pt-4 border-t border-gray-100 flex justify-center">
                     <button type="button" id="btnUpdateSave" class="w-full max-w-xs bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg transition shadow-md text-sm cursor-pointer text-center hidden">
                         💾 変更内容を上書き保存する
@@ -221,6 +232,7 @@
 
             </form>
 
+            <!-- 🖨️ 右側：印刷プレビュー・操作（横幅コンパクト） -->
             <div class="lg:col-span-5 flex lg:justify-start">
                 <div class="w-full max-w-xs bg-slate-800 text-white p-4 rounded-xl shadow-md sticky top-4">
                     <h2 class="text-sm font-bold mb-2 flex items-center gap-2 text-emerald-400">
@@ -231,17 +243,18 @@
                     </p>
                     
                     <div class="grid grid-cols-1 gap-2">
-                        <button id="btnScrollToPreview" class="w-full bg-slate-600 hover:bg-slate-500 text-white font-bold py-2 px-3 rounded transition text-xs cursor-pointer flex items-center justify-center gap-1">
+                        <!-- 🔍 プレビュー確認ボタン -->
+                        <button id="btnScrollToPreview" type="button" class="w-full bg-slate-600 hover:bg-slate-500 text-white font-bold py-2 px-3 rounded transition text-xs cursor-pointer flex items-center justify-center gap-1">
                             🔍 プレビューのみ（画面で確認する）
                         </button>
                         <hr class="border-slate-700 my-1">
-                        <button id="btnPrintAll" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2 px-3 rounded transition shadow-sm cursor-pointer text-xs">
+                        <button id="btnPrintAll" type="button" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2 px-3 rounded transition shadow-sm cursor-pointer text-xs">
                             📄 通知書 ＋ 報告書 まとめて印刷
                         </button>
-                        <button id="btnPrintNotice" class="w-full bg-slate-700 hover:bg-slate-600 text-white border border-slate-600 py-1.5 px-3 rounded transition text-[11px] cursor-pointer">
+                        <button id="btnPrintNotice" type="button" class="w-full bg-slate-700 hover:bg-slate-600 text-white border border-slate-600 py-1.5 px-3 rounded transition text-[11px] cursor-pointer">
                             ① 労働条件通知書 のみ印刷
                         </button>
-                        <button id="btnPrintReport" class="w-full bg-slate-700 hover:bg-slate-600 text-white border border-slate-600 py-1.5 px-3 rounded transition text-[11px] cursor-pointer">
+                        <button id="btnPrintReport" type="button" class="w-full bg-slate-700 hover:bg-slate-600 text-white border border-slate-600 py-1.5 px-3 rounded transition text-[11px] cursor-pointer">
                             ② 雇用報告書 のみ印刷
                         </button>
                     </div>
@@ -249,8 +262,12 @@
             </div>
         </div>
 
+        <!-- ================================================================= -->
+        <!-- 🖨️ 印刷用・書類レンダリングエリア -->
+        <!-- ================================================================= -->
         <div id="printArea" class="mt-8 bg-white p-2 md:p-8 rounded-xl border shadow-xs max-w-[210mm] mx-auto text-gray-900">
             
+            <!-- 📄 書類1：労働条件通知書 -->
             <div id="sectionNotice" class="p-4 md:p-6 text-[11px] leading-relaxed relative">
                 <h1 class="text-center text-xl font-bold tracking-widest border-b-2 border-gray-900 pb-1 mb-6">労 働 条 件 通 知 書</h1>
                 
@@ -327,8 +344,10 @@
                 </div>
             </div>
 
+            <!-- ✂️ ページ区切り線 -->
             <hr class="my-8 border-t-2 border-dashed border-gray-300 no-print">
 
+            <!-- 📄 書類2：雇用報告書 -->
             <div id="sectionReport" class="p-4 md:p-6 text-[11px] leading-relaxed page-break relative">
                 <h1 class="text-center text-xl font-bold tracking-widest border-b-2 border-gray-900 pb-1 mb-6">雇 用 報 告 書</h1>
 
@@ -428,6 +447,7 @@
 
     </div>
 
+    <!-- Firebase SDK & Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -447,6 +467,7 @@
 
         let currentEditingId = null;
 
+        // 🟢 ページ読み込み時に一番最初にデータをチェックして呼び出す処理
         window.addEventListener('DOMContentLoaded', () => {
             const todayStr = new Date().toLocaleDateString('ja-JP');
             document.getElementById('view_notify_date').innerText = todayStr;
@@ -454,9 +475,15 @@
 
             const editTarget = localStorage.getItem('edit_target');
             if (editTarget) {
-                const empData = JSON.parse(editTarget);
-                fillFormForEdit(empData);
-                localStorage.removeItem('edit_target');
+                try {
+                    const empData = JSON.parse(editTarget);
+                    fillFormForEdit(empData);
+                    localStorage.removeItem('edit_target'); // 呼び出し成功後にクリーンアップ
+                } catch(e) {
+                    console.error("データ解析エラー:", e);
+                    switchMode(false);
+                    syncPreview();
+                }
             } else {
                 switchMode(false);
                 syncPreview();
@@ -470,17 +497,18 @@
             const btnNew = document.getElementById('btnNewSave');
 
             if (isEdit) {
-                indicator.classList.remove('hidden');
-                btnUpdate.classList.remove('hidden');
-                btnNew.classList.add('hidden');
+                if(indicator) indicator.classList.remove('hidden');
+                if(btnUpdate) btnUpdate.classList.remove('hidden');
+                if(btnNew) btnNew.classList.add('hidden');
             } else {
-                indicator.classList.add('hidden');
-                btnUpdate.classList.add('hidden');
-                btnNew.classList.remove('hidden');
+                if(indicator) indicator.classList.add('hidden');
+                if(btnUpdate) btnUpdate.classList.add('hidden');
+                if(btnNew) btnNew.classList.remove('hidden');
             }
         }
 
         function fillFormForEdit(data) {
+            if (!data) return;
             switchMode(true, data.id);
 
             document.getElementById('name').value = data.name || '';
@@ -524,6 +552,7 @@
             document.getElementById('interviewDate').value = data.interviewDate || '';
             document.getElementById('interviewNotes').value = data.interviewNotes || '';
 
+            // フォーム読み込み直後にプレビュー側も強制同期
             syncPreview();
         }
 
@@ -559,4 +588,173 @@
             });
             const rolesStr = checkedRoles.length > 0 ? checkedRoles.join(' ・ ') : '未選択';
             document.getElementById('view_roles').innerText = rolesStr;
-            document.getElementById('view_rep_roles
+            document.getElementById('view_rep_roles').innerText = rolesStr;
+
+            const h1 = document.getElementById('hours1').value;
+            const h2 = document.getElementById('hours2').value;
+            const h3 = document.getElementById('hours3').value;
+            const hList = document.getElementById('view_hours_list');
+            if (hList) {
+                hList.innerHTML = '';
+                if(h1) hList.innerHTML += `<div>① ${h1}</div>`;
+                if(h2) hList.innerHTML += `<div>② ${h2}</div>`;
+                if(h3) hList.innerHTML += `<div>③ ${h3}</div>`;
+            }
+            document.getElementById('view_hour_memo').innerText = document.getElementById('hourMemo').value || '';
+
+            document.getElementById('view_holidays').innerText = document.getElementById('holidays').value || '-';
+
+            const train = document.getElementById('salaryTraining').value || '-';
+            let sal = document.getElementById('salary').value;
+
+            if (!sal && train.includes("時給")) {
+                sal = `${train} (研修終了後・通常)`;
+            }
+
+            document.getElementById('view_salary_training').innerText = train;
+            document.getElementById('view_salary').innerText = sal || '未設定';
+            document.getElementById('view_rep_salary').innerText = sal || '未設定';
+            document.getElementById('view_rep_training').innerText = train;
+
+            document.getElementById('view_allowances').innerText = document.getElementById('allowances').value || '-';
+            document.getElementById('view_bonus').innerText = document.getElementById('bonus').value || '-';
+            document.getElementById('view_retirement').innerText = document.getElementById('retirement').value || '-';
+
+            const intDate = document.getElementById('interviewDate').value;
+            document.getElementById('view_rep_interview_date').innerText = intDate ? new Date(intDate).toLocaleDateString('ja-JP') : '-';
+            document.getElementById('view_rep_interviewer').innerText = document.getElementById('interviewerName').value || '-';
+            document.getElementById('view_rep_interview_notes').innerText = document.getElementById('interviewNotes').value || '-';
+            
+            const hireDateVal = document.getElementById('hireDate').value;
+            document.getElementById('view_rep_hire_date').innerText = hireDateVal ? new Date(hireDateVal).toLocaleDateString('ja-JP') : '-';
+        }
+
+        document.getElementById('employeeForm').addEventListener('input', syncPreview);
+        document.getElementById('employeeForm').addEventListener('change', syncPreview);
+
+        function buildEmployeeObject(id) {
+            const checkedRoles = [];
+            document.querySelectorAll('#rolesContainer input[type="checkbox"]:checked').forEach(cb => {
+                checkedRoles.push(cb.value);
+            });
+
+            const train = document.getElementById('salaryTraining').value;
+            let sal = document.getElementById('salary').value;
+
+            if (!sal && train.includes("時給")) {
+                sal = `${train} (研修終了後・通常)`;
+            }
+
+            return {
+                id: id,
+                name: document.getElementById('name').value,
+                birth: document.getElementById('birth').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                address: document.getElementById('address').value,
+                emergencyContact1: document.getElementById('emergencyContact1').value,
+                emergencyContact2: document.getElementById('emergencyContact2').value,
+                commuteMethod: document.getElementById('commuteMethod').value,
+                dept: document.getElementById('dept').value,
+                hireDate: document.getElementById('hireDate').value,
+                place: document.getElementById('place').value,
+                status: document.getElementById('status').value,
+                changeScope: document.getElementById('changeScope').value,
+                roles: checkedRoles,
+                period: document.getElementById('period').value,
+                attendanceDays: document.getElementById('attendanceDays').value,
+                workDays: document.getElementById('workDays').value,
+                hours1: document.getElementById('hours1').value,
+                hours2: document.getElementById('hours2').value,
+                hours3: document.getElementById('hours3').value,
+                hourMemo: document.getElementById('hourMemo').value,
+                holidays: document.getElementById('holidays').value,
+                salaryTraining: train,
+                salary: sal,
+                allowances: document.getElementById('allowances').value,
+                bonus: document.getElementById('bonus').value,
+                retirement: document.getElementById('retirement').value,
+                notes: document.getElementById('notes').value,
+                interviewerName: document.getElementById('interviewerName').value,
+                interviewDate: document.getElementById('interviewDate').value,
+                interviewNotes: document.getElementById('interviewNotes').value,
+                updatedAt: new Date().toISOString()
+            };
+        }
+
+        // 上書き保存
+        document.getElementById('btnUpdateSave').addEventListener('click', async () => {
+            if (!document.getElementById('name').value) {
+                alert("氏名（フリガナ）は必須入力項目です。");
+                return;
+            }
+            try {
+                const empData = buildEmployeeObject(currentEditingId);
+                await setDoc(doc(db, "employees", currentEditingId), empData);
+                alert(`🎉 ${empData.name} さんのデータを正常に上書き保存しました！`);
+                window.location.href = 'list.html';
+            } catch (err) {
+                console.error(err);
+                alert("データベースの上書き保存に失敗しました。");
+            }
+        });
+
+        // 新規登録
+        document.getElementById('btnNewSave').addEventListener('click', async () => {
+            if (!document.getElementById('name').value) {
+                alert("氏名（フリガナ）は必須入力項目です。");
+                return;
+            }
+            try {
+                const newId = "emp_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+                const empData = buildEmployeeObject(newId);
+                await setDoc(doc(db, "employees", newId), empData);
+                alert(`🎉 新規従業員として ${empData.name} さんを新しく登録しました！`);
+                switchMode(true, newId);
+                syncPreview();
+            } catch (err) {
+                console.error(err);
+                alert("新規登録に失敗しました。");
+            }
+        });
+
+        // フォームリセット
+        document.getElementById('btnResetForm').addEventListener('click', () => {
+            if (confirm("画面上の入力欄と印刷プレビューをすべてクリアして、最初から新規入力を開始しますか？")) {
+                document.getElementById('employeeForm').reset();
+                document.querySelectorAll('#rolesContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
+                switchMode(false);
+                syncPreview();
+                alert("画面をクリアしました。");
+            }
+        });
+
+        // 🔍 プレビューへのスクロール移動
+        document.getElementById('btnScrollToPreview').addEventListener('click', () => {
+            const printArea = document.getElementById('printArea');
+            if(printArea) {
+                printArea.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+        // 印刷制御
+        document.getElementById('btnPrintAll').addEventListener('click', () => {
+            document.getElementById('sectionNotice').classList.remove('no-print');
+            document.getElementById('sectionReport').classList.remove('no-print');
+            window.print();
+        });
+
+        document.getElementById('btnPrintNotice').addEventListener('click', () => {
+            document.getElementById('sectionNotice').classList.remove('no-print');
+            document.getElementById('sectionReport').classList.add('no-print');
+            window.print();
+        });
+
+        document.getElementById('btnPrintReport').addEventListener('click', () => {
+            document.getElementById('sectionNotice').classList.add('no-print');
+            document.getElementById('sectionReport').classList.remove('no-print');
+            window.print();
+        });
+    </script>
+</body>
+</html>
