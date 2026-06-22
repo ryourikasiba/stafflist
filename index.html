@@ -50,9 +50,9 @@
                 <div>
                     <h2 class="text-sm font-black text-emerald-700 border-l-4 border-emerald-600 pl-2 mb-3">基本情報</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                        <div>
-                            <label class="block font-bold text-gray-600 mb-1">氏名 <span class="text-red-500">*</span></label>
-                            <input type="text" id="name" required class="w-full p-2 border rounded focus:ring-1 focus:ring-emerald-500 outline-none" placeholder="山田 太郎">
+                        <div class="md:col-span-2">
+                            <label class="block font-bold text-gray-600 mb-1">氏名（フリガナ） <span class="text-red-500">*</span></label>
+                            <input type="text" id="name" required class="w-full p-2 border rounded focus:ring-1 focus:ring-emerald-500 outline-none" placeholder="ヤマダ タロウ（山田 太郎）">
                         </div>
                         <div>
                             <label class="block font-bold text-gray-600 mb-1">生年月日</label>
@@ -66,7 +66,7 @@
                             <label class="block font-bold text-gray-600 mb-1">メールアドレス</label>
                             <input type="email" id="email" class="w-full p-2 border rounded focus:ring-1 focus:ring-emerald-500 outline-none" placeholder="taro@example.com">
                         </div>
-                        <div class="md:col-span-2">
+                        <div>
                             <label class="block font-bold text-gray-600 mb-1">住所</label>
                             <input type="text" id="address" class="w-full p-2 border rounded focus:ring-1 focus:ring-emerald-500 outline-none" placeholder="奈良県天理市...">
                         </div>
@@ -175,11 +175,7 @@
                 <div>
                     <h2 class="text-sm font-black text-emerald-700 border-l-4 border-emerald-600 pl-2 mb-3">給与・手当・退職規定</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                        <div>
-                            <label class="block font-bold text-gray-600 mb-1">給料形態(試用期間中)</label>
-                            <input type="text" id="salaryProbation" class="w-full p-2 border rounded focus:ring-1 focus:ring-emerald-500 outline-none" value="時給 1,000円 （試用期間：1ヶ月間）">
-                        </div>
-                        <div>
+                        <div class="md:col-span-2">
                             <label class="block font-bold text-gray-600 mb-1">給料形態(研修期間中)</label>
                             <input type="text" id="salaryTraining" class="w-full p-2 border rounded focus:ring-1 focus:ring-emerald-500 outline-none" value="時給 1,050円 （研修期間：3ヶ月間）">
                         </div>
@@ -189,7 +185,7 @@
                         </div>
                         <div class="md:col-span-2">
                             <label class="block font-bold text-gray-600 mb-1">諸手当・賃金締切日・支払日規定</label>
-                            <textarea id="allowances" rows="2" class="w-full p-2 border rounded focus:ring-1 focus:ring-emerald-500 outline-none">【諸手当】通勤手当（実費支給・上限月2万円）&#10;【賃金締切・支払】毎月20日締め・当月25日支払</textarea>
+                            <textarea id="allowances" rows="2" class="w-full p-2 border rounded focus:ring-1 focus:ring-emerald-500 outline-none">【諸手当】通勤手当（実費支給・上限月2万円）&#10;【賃金締切・支払】毎月5日締め・当月25日支払</textarea>
                         </div>
                         <div>
                             <label class="block font-bold text-gray-600 mb-1">昇給・賞与・退職金</label>
@@ -225,15 +221,15 @@
                     </div>
                 </div>
 
-                <!-- 🔘 アクションボタン群（ここを大改修） -->
-                <div class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row gap-3">
+                <!-- 🔘 アクションボタン群（サイズを半分程度・中央寄せに改修） -->
+                <div class="pt-4 border-t border-gray-100 flex justify-center">
                     <!-- 上書き更新用のボタン（通常は非表示、編集モード時に出現） -->
-                    <button type="button" id="btnUpdateSave" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-md text-sm cursor-pointer text-center hidden">
+                    <button type="button" id="btnUpdateSave" class="w-full max-w-xs bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg transition shadow-md text-sm cursor-pointer text-center hidden">
                         💾 変更内容を上書き保存する
                     </button>
                     
                     <!-- 新規登録用のボタン -->
-                    <button type="button" id="btnNewSave" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 px-4 rounded-lg transition shadow-md text-sm cursor-pointer text-center">
+                    <button type="button" id="btnNewSave" class="w-full max-w-xs bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-lg transition shadow-md text-sm cursor-pointer text-center">
                         ➕ 新規従業員として登録
                     </button>
                 </div>
@@ -321,7 +317,6 @@
                             <td class="p-2 bg-gray-50 font-bold border-r border-gray-900">基本賃金・給料形態</td>
                             <td class="p-2 font-medium space-y-1">
                                 <div class="grid grid-cols-1 gap-1">
-                                    <div>【試用期間】 <span id="view_salary_probation" class="font-semibold">-</span></div>
                                     <div>【研修期間】 <span id="view_salary_training" class="font-semibold">-</span></div>
                                     <div class="bg-slate-50 p-1.5 rounded border border-gray-200">
                                         【研修終了後・通常】 <span id="view_salary" class="font-bold text-emerald-900 text-xs">-</span>
@@ -366,7 +361,7 @@
                 <table class="w-full border-collapse border border-gray-900 text-[10px] mb-5">
                     <tbody>
                         <tr class="border-b border-gray-900">
-                            <td class="w-1/4 p-2 bg-gray-50 font-bold border-r border-gray-900">氏名</td>
+                            <td class="w-1/4 p-2 bg-gray-50 font-bold border-r border-gray-900">氏名（フリガナ）</td>
                             <td class="p-2 font-bold text-sm" id="view_rep_name">-</td>
                             <td class="w-1/6 p-2 bg-gray-50 font-bold border-l border-r border-gray-900">生年月日</td>
                             <td class="p-2 font-medium" id="view_rep_birth">-</td>
@@ -429,7 +424,7 @@
                             <td class="p-2 bg-gray-50 font-bold border-r border-gray-900">決定給与条件</td>
                             <td class="p-2 font-medium">
                                 通常時給/月給： <span id="view_rep_salary" class="font-bold text-slate-900">-</span> 
-                                <span class="text-[9px] text-gray-500 block mt-0.5">（試用：<span id="view_rep_probation">-</span> ／ 研修：<span id="view_rep_training">-</span>）</span>
+                                <span class="text-[9px] text-gray-500 block mt-0.5">（研修：<span id="view_rep_training">-</span>）</span>
                             </td>
                         </tr>
                     </tbody>
@@ -473,7 +468,7 @@
         // 現在編集中のデータID（nullの場合は完全な新規登録モード）
         let currentEditingId = null;
 
-        // ページ読み込み時の処理（一覧からの編集ターゲットがあるかチェック）
+        // ページ読み込み時の処理
         window.addEventListener('DOMContentLoaded', () => {
             const todayStr = new Date().toLocaleDateString('ja-JP');
             document.getElementById('view_notify_date').innerText = todayStr;
@@ -500,7 +495,7 @@
             if (isEdit) {
                 indicator.classList.remove('hidden');
                 btnUpdate.classList.remove('hidden');
-                btnNew.classList.add('hidden'); // 編集時は新規追加ボタンを隠す
+                btnNew.classList.add('hidden');
             } else {
                 indicator.classList.add('hidden');
                 btnUpdate.classList.add('hidden');
@@ -542,7 +537,6 @@
             document.getElementById('hourMemo').value = data.hourMemo || '';
             document.getElementById('holidays').value = data.holidays || '';
             
-            document.getElementById('salaryProbation').value = data.salaryProbation || '';
             document.getElementById('salaryTraining').value = data.salaryTraining || '';
             document.getElementById('salary').value = data.salary || '';
             
@@ -609,20 +603,17 @@
             document.getElementById('view_holidays').innerText = document.getElementById('holidays').value || '-';
 
             // 給与条件
-            const prob = document.getElementById('salaryProbation').value || '-';
             const train = document.getElementById('salaryTraining').value || '-';
             let sal = document.getElementById('salary').value;
 
             // ⭐ 時給自動補完
-            if (!sal && (prob.includes("時給") || train.includes("時給"))) {
-                sal = train ? `${train} (研修終了後・通常)` : `${prob} (通常)`;
+            if (!sal && train.includes("時給")) {
+                sal = `${train} (研修終了後・通常)`;
             }
 
-            document.getElementById('view_salary_probation').innerText = prob;
             document.getElementById('view_salary_training').innerText = train;
             document.getElementById('view_salary').innerText = sal || '未設定';
             document.getElementById('view_rep_salary').innerText = sal || '未設定';
-            document.getElementById('view_rep_probation').innerText = prob;
             document.getElementById('view_rep_training').innerText = train;
 
             document.getElementById('view_allowances').innerText = document.getElementById('allowances').value || '-';
@@ -650,12 +641,11 @@
                 checkedRoles.push(cb.value);
             });
 
-            const prob = document.getElementById('salaryProbation').value;
             const train = document.getElementById('salaryTraining').value;
             let sal = document.getElementById('salary').value;
 
-            if (!sal && (prob.includes("時給") || train.includes("時給"))) {
-                sal = train ? `${train} (研修終了後・通常)` : `${prob} (通常)`;
+            if (!sal && train.includes("時給")) {
+                sal = `${train} (研修終了後・通常)`;
             }
 
             return {
@@ -682,7 +672,6 @@
                 hours3: document.getElementById('hours3').value,
                 hourMemo: document.getElementById('hourMemo').value,
                 holidays: document.getElementById('holidays').value,
-                salaryProbation: prob,
                 salaryTraining: train,
                 salary: sal,
                 allowances: document.getElementById('allowances').value,
@@ -696,14 +685,14 @@
             };
         }
 
-        // 🔥 ボタン1: 変更内容を上書き保存する (既存のIDへ上書き)
+        // 🔥 ボタン1: 変更内容を上書き保存する
         document.getElementById('btnUpdateSave').addEventListener('click', async () => {
             if (!document.getElementById('name').value) {
-                alert("氏名は必須入力項目です。");
+                alert("氏名（フリガナ）は必須入力項目です。");
                 return;
             }
             if (!currentEditingId) {
-                alert("エラー: 編集対象のデータIDが見つかりません。新規追加を行ってください。");
+                alert("エラー: 編集対象のデータIDが見つかりません。");
                 return;
             }
 
@@ -711,17 +700,17 @@
                 const empData = buildEmployeeObject(currentEditingId);
                 await setDoc(doc(db, "employees", currentEditingId), empData);
                 alert(`🎉 ${empData.name} さんのデータを正常に上書き保存しました！`);
-                window.location.href = 'list.html'; // 名簿一覧へ戻る
+                window.location.href = 'list.html';
             } catch (err) {
                 console.error(err);
                 alert("データベースの上書き保存に失敗しました。");
             }
         });
 
-        // 🔥 ボタン2: 新規従業員として登録 (常に新しい一意のIDを作成)
+        // 🔥 ボタン2: 新規従業員として登録
         document.getElementById('btnNewSave').addEventListener('click', async () => {
             if (!document.getElementById('name').value) {
-                alert("氏名は必須入力項目です。");
+                alert("氏名（フリガナ）は必須入力項目です。");
                 return;
             }
 
@@ -731,7 +720,6 @@
                 await setDoc(doc(db, "employees", newId), empData);
                 alert(`🎉 新規従業員として ${empData.name} さんを新しくデータベースに登録しました！`);
                 
-                // 登録完了後は、そのまま上書きモード（編集継続状態）にスライド移行させ重複を防ぐ
                 switchMode(true, newId);
                 syncPreview();
             } catch (err) {
@@ -740,21 +728,18 @@
             }
         });
 
-        // ✨ ボタン3: フォームを完全に真っ新にする（新規入力用）
+        // ✨ ボタン3: フォームを完全に真っ新にする
         document.getElementById('btnResetForm').addEventListener('click', () => {
-            if (confirm("画面上の入力欄と印刷プレビューをすべてクリアして、最初から新規入力を開始しますか？\n（※保存済みのデータは消えません）")) {
+            if (confirm("画面上の入力欄と印刷プレビューをすべてクリアして、最初から新規入力を開始しますか？")) {
                 document.getElementById('employeeForm').reset();
-                // チェックボックスの強制解除
                 document.querySelectorAll('#rolesContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
-                switchMode(false); // 新規登録モードに戻す
+                switchMode(false);
                 syncPreview();
                 alert("画面をクリアしました。新しい従業員情報を入力してください。");
             }
         });
 
-        // =================================================================
         // 🖨️ 印刷詳細制御ロジック
-        // =================================================================
         document.getElementById('btnPrintAll').addEventListener('click', () => {
             document.getElementById('sectionNotice').classList.remove('no-print');
             document.getElementById('sectionReport').classList.remove('no-print');
