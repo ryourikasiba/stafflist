@@ -7,12 +7,46 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
+        /* 🖨️ A4ジャストサイズにフィットさせるための印刷専用スタイル */
         @media print {
-            body * { visibility: hidden; }
-            #printArea, #printArea * { visibility: visible; }
-            #printArea { position: absolute; left: 0; top: 0; width: 100%; }
-            .no-print { display: none; }
-            .page-break { page-break-before: always; }
+            @page {
+                size: A4 portrait;
+                margin: 10mm 10mm 10mm 10mm; /* A4余白の最適化 */
+            }
+            body {
+                background: #fff;
+                color: #000;
+                font-size: 9px;
+            }
+            body * { 
+                visibility: hidden; 
+            }
+            #printArea, #printArea * { 
+                visibility: visible; 
+            }
+            #printArea { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            .no-print { 
+                display: none !important; 
+            }
+            .page-break { 
+                page-break-before: always; 
+                break-before: page;
+                margin-top: 0 !important;
+                padding-top: 5mm !important;
+            }
+            /* 印刷時にテーブルがはみ出さないようにガード */
+            table {
+                page-break-inside: avoid;
+            }
         }
     </style>
 </head>
@@ -252,7 +286,7 @@
                         </button>
                         <hr class="border-slate-700 my-1">
                         <button id="btnPrintAll" type="button" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2 px-3 rounded transition shadow-sm cursor-pointer text-xs">
-                            📄 通知書 ＋ 報告書 まままとめて印刷
+                            📄 通知書 ＋ 報告書 まめて印刷
                         </button>
                         <button id="btnPrintNotice" type="button" class="w-full bg-slate-700 hover:bg-slate-600 text-white border border-slate-600 py-1.5 px-3 rounded transition text-[11px] cursor-pointer">
                             ① 労働条件通知書 のみ印刷
@@ -266,89 +300,91 @@
         </div>
 
         <!-- ================================================================= -->
-        <!-- 🖨️ 印刷用・書類レンダリングエリア -->
+        <!-- 🖨️ 印刷用・書類レンダリングエリア（A4最適化デザイン） -->
         <!-- ================================================================= -->
-        <div id="printArea" class="mt-8 bg-white p-2 md:p-8 rounded-xl border shadow-xs max-w-[210mm] mx-auto text-gray-900">
+        <div id="printArea" class="mt-8 bg-white p-4 md:p-8 rounded-xl border shadow-xs max-w-[210mm] mx-auto text-gray-900">
             
             <!-- 📄 書類1：労働条件通知書 -->
-            <div id="sectionNotice" class="p-4 md:p-6 text-[10px] leading-relaxed relative">
-                <h1 class="text-center text-xl font-bold tracking-widest border-b-2 border-gray-900 pb-1 mb-6">労 働 条 件 通 知 書</h1>
-                
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <span id="view_name" class="text-sm font-bold border-b border-gray-900 pr-8 pb-0.5">山田 太郎</span> 殿
+            <div id="sectionNotice" class="p-2 md:p-4 text-[9.5px] leading-relaxed relative min-h-[280mm] flex flex-col justify-between">
+                <div>
+                    <h1 class="text-center text-lg font-bold tracking-widest border-b-2 border-gray-900 pb-1 mb-5">労 働 条 件 通 知 書</h1>
+                    
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span id="view_name" class="text-xs font-bold border-b border-gray-900 pr-8 pb-0.5">山田 太郎</span> 殿
+                        </div>
+                        <div class="text-right text-[9px]">
+                            <div>通知日：<span id="view_notify_date" class="border-b border-gray-400 px-2">-</span></div>
+                            <div class="mt-1 font-bold text-[11px]"><span id="view_company_name">株式会社料理かしば</span></div>
+                            <div class="text-[8.5px] text-gray-600">奈良県天理市西原町117門先</div>
+                            <div class="text-[8.5px] text-gray-600">代表取締役 山下 真弘</div>
+                        </div>
                     </div>
-                    <div class="text-right text-[10px]">
-                        <div>通知日：<span id="view_notify_date" class="border-b border-gray-400 px-2">-</span></div>
-                        <div class="mt-1.5 font-bold text-xs"><span id="view_company_name">株式会社料理かしば</span></div>
-                        <div class="text-[9px] text-gray-600">奈良県天理市西原町117門先</div>
-                        <div class="text-[9px] text-gray-600">代表取締役 山下 真弘</div>
-                    </div>
+
+                    <p class="mb-2 text-[8.5px]">貴殿との雇用契約における労働条件は、下記のとおりです。</p>
+
+                    <table class="w-full border-collapse border border-gray-900 text-[8.5px]">
+                        <tbody>
+                            <tr class="border-b border-gray-900">
+                                <td class="w-1/4 p-1 bg-gray-50 font-bold border-r border-gray-900">労働契約の期間</td>
+                                <td class="p-1 whitespace-pre-wrap font-medium" id="view_period">-</td>
+                            </tr>
+                            <tr class="border-b border-gray-900">
+                                <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">就業の場所</td>
+                                <td class="p-1 font-medium" id="view_place">-</td>
+                            </tr>
+                            <tr class="border-b border-gray-900">
+                                <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">従事すべき業務の内容</td>
+                                <td class="p-1 font-medium">
+                                    【職種】 <span id="view_roles" class="font-bold text-slate-900">-</span><br>
+                                    <span id="view_change_scope" class="text-[8px] text-gray-600 block mt-0.5">-</span>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-900">
+                                <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">始業・終業の時刻等</td>
+                                <td class="p-1 font-medium">
+                                    <div id="view_hours_list" class="space-y-0.5"></div>
+                                    <div id="view_hour_memo" class="text-[8px] text-gray-600 mt-0.5 italic"></div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-900">
+                                <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">所定労働時間を超える<br>労働の有無（残業）</td>
+                                <td class="p-1 font-medium" id="view_overtimeWork">-</td>
+                            </tr>
+                            <tr class="border-b border-gray-900">
+                                <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">休日に関する規定</td>
+                                <td class="p-1 whitespace-pre-wrap font-medium" id="view_holidays">-</td>
+                            </tr>
+                            <tr class="border-b border-gray-900">
+                                <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">休暇に関する規定</td>
+                                <td class="p-1 whitespace-pre-wrap font-medium" id="view_vacations">-</td>
+                            </tr>
+                            <tr class="border-b border-gray-900">
+                                <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">基本賃金・給料形態</td>
+                                <td class="p-1 font-medium space-y-0.5">
+                                    <div>【研修期間】 <span id="view_salary_training" class="font-semibold">-</span></div>
+                                    <div class="bg-slate-50 p-1 rounded border border-gray-200 text-[9px]">
+                                        【研修終了後・通常】 <span id="view_salary" class="font-bold text-emerald-900">-</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-900">
+                                <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">諸手当・締切支払日</td>
+                                <td class="p-1 whitespace-pre-wrap font-medium" id="view_allowances">-</td>
+                            </tr>
+                            <tr class="border-b border-gray-900">
+                                <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">昇給・賞与・退職金</td>
+                                <td class="p-1 font-medium" id="view_bonus">-</td>
+                            </tr>
+                            <tr>
+                                <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">退職・解雇に関する事項</td>
+                                <td class="p-1 font-medium" id="view_retirement">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
-                <p class="mb-3 text-[9px]">貴殿との雇用契約における労働条件は、下記のとおりです。</p>
-
-                <table class="w-full border-collapse border border-gray-900 text-[9px]">
-                    <tbody>
-                        <tr class="border-b border-gray-900">
-                            <td class="w-1/4 p-1.5 bg-gray-50 font-bold border-r border-gray-900">労働契約の期間</td>
-                            <td class="p-1.5 whitespace-pre-wrap font-medium" id="view_period">-</td>
-                        </tr>
-                        <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">就業の場所</td>
-                            <td class="p-1.5 font-medium" id="view_place">-</td>
-                        </tr>
-                        <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">従事すべき業務の内容</td>
-                            <td class="p-1.5 font-medium">
-                                【職種】 <span id="view_roles" class="font-bold text-slate-900">-</span><br>
-                                <span id="view_change_scope" class="text-[9px] text-gray-600 block mt-0.5">-</span>
-                            </td>
-                        </tr>
-                        <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">始業・終業の時刻等</td>
-                            <td class="p-1.5 font-medium">
-                                <div id="view_hours_list" class="space-y-0.5"></div>
-                                <div id="view_hour_memo" class="text-[9px] text-gray-600 mt-0.5 italic"></div>
-                            </td>
-                        </tr>
-                        <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">所定労働時間を超える<br>労働の有無（残業）</td>
-                            <td class="p-1.5 font-medium" id="view_overtimeWork">-</td>
-                        </tr>
-                        <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">休日に関する規定</td>
-                            <td class="p-1.5 whitespace-pre-wrap font-medium" id="view_holidays">-</td>
-                        </tr>
-                        <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">休暇に関する規定</td>
-                            <td class="p-1.5 whitespace-pre-wrap font-medium" id="view_vacations">-</td>
-                        </tr>
-                        <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">基本賃金・給料形態</td>
-                            <td class="p-1.5 font-medium space-y-1">
-                                <div>【研修期間】 <span id="view_salary_training" class="font-semibold">-</span></div>
-                                <div class="bg-slate-50 p-1 rounded border border-gray-200">
-                                    【研修終了後・通常】 <span id="view_salary" class="font-bold text-emerald-900">-</span>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">諸手当・締切支払日</td>
-                            <td class="p-1.5 whitespace-pre-wrap font-medium" id="view_allowances">-</td>
-                        </tr>
-                        <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">昇給・賞与・退職金</td>
-                            <td class="p-1.5 font-medium" id="view_bonus">-</td>
-                        </tr>
-                        <tr>
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">退職・解雇に関する事項</td>
-                            <td class="p-1.5 font-medium" id="view_retirement">-</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="mt-3 text-[8px] text-gray-500 border border-gray-200 p-1.5 rounded">
+                <div class="mt-2 text-[8px] text-gray-500 border border-gray-200 p-1 rounded">
                     ※ 本書は、労働基準法第15条第1項及び同法施行規則第5条に基づき、労働条件を明示するために交付するものです。
                 </div>
             </div>
@@ -356,14 +392,14 @@
             <!-- ✂️ ページ区切り線 -->
             <hr class="my-6 border-t-2 border-dashed border-gray-300 no-print">
 
-            <!-- 📄 書類2：雇用報告書（採用条件欄を大幅拡張） -->
-            <div id="sectionReport" class="p-4 md:p-6 text-[10px] leading-relaxed page-break relative">
+            <!-- 📄 書類2：雇用報告書 -->
+            <div id="sectionReport" class="p-2 md:p-4 text-[9.5px] leading-relaxed page-break relative min-h-[280mm]">
                 
                 <!-- 👑 最上部：タイトル ＆ 5連決裁印枠 -->
-                <div class="flex justify-between items-center border-b-2 border-gray-900 pb-2 mb-4">
-                    <h1 class="text-xl font-bold tracking-widest my-0">雇 用 報 告 書</h1>
+                <div class="flex justify-between items-center border-b-2 border-gray-900 pb-1 mb-3">
+                    <h1 class="text-lg font-bold tracking-widest my-0">雇 用 報 告 書</h1>
                     
-                    <table class="border-collapse border border-gray-800 text-center text-[8px] w-64 table-fixed">
+                    <table class="border-collapse border border-gray-800 text-center text-[7.5px] w-60 table-fixed">
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-800">
                                 <th class="p-0.5 font-bold border-r border-gray-800 w-1/5">社長印</th>
@@ -375,114 +411,113 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="h-12 border-r border-gray-800"></td>
-                                <td class="h-12 border-r border-gray-800"></td>
-                                <td class="h-12 border-r border-gray-800"></td>
-                                <td class="h-12 border-r border-gray-800"></td>
-                                <td class="h-12"></td>
+                                <td class="h-10 border-r border-gray-800"></td>
+                                <td class="h-10 border-r border-gray-800"></td>
+                                <td class="h-10 border-r border-gray-800"></td>
+                                <td class="h-10 border-r border-gray-800"></td>
+                                <td class="h-10"></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="text-right text-[9px] mb-2">
+                <div class="text-right text-[8.5px] mb-1">
                     <div>報告日：<span id="view_report_date" class="border-b border-gray-400 px-2">-</span></div>
                 </div>
 
-                <p class="mb-3 text-[9px] font-bold text-gray-700">下記のとおり、新規従業員の選考及び雇用手続きについて報告いたします。</p>
+                <p class="mb-2 text-[8.5px] font-bold text-gray-700">下記のとおり、新規従業員の選考及び雇用手続きについて報告いたします。</p>
 
                 <!-- 1. 対象者基本情報 -->
-                <h3 class="font-bold text-[11px] bg-gray-800 text-white px-2 py-0.5 mb-1.5">1. 対象者基本情報</h3>
-                <table class="w-full border-collapse border border-gray-900 text-[9px] mb-3">
+                <h3 class="font-bold text-[10px] bg-gray-800 text-white px-2 py-0.5 mb-1">1. 対象者基本情報</h3>
+                <table class="w-full border-collapse border border-gray-900 text-[8.5px] mb-2.5">
                     <tbody>
                         <tr class="border-b border-gray-900">
-                            <td class="w-1/4 p-1.5 bg-gray-50 font-bold border-r border-gray-900">氏名（フリガナ）</td>
-                            <td class="p-1.5 font-bold text-sm" id="view_rep_name">-</td>
-                            <td class="w-1/6 p-1.5 bg-gray-50 font-bold border-l border-r border-gray-900">生年月日</td>
-                            <td class="p-1.5 font-medium" id="view_rep_birth">-</td>
+                            <td class="w-1/4 p-1 bg-gray-50 font-bold border-r border-gray-900">氏名（フリガナ）</td>
+                            <td class="p-1 font-bold text-xs" id="view_rep_name">-</td>
+                            <td class="w-1/6 p-1 bg-gray-50 font-bold border-l border-r border-gray-900">生年月日</td>
+                            <td class="p-1 font-medium" id="view_rep_birth">-</td>
                         </tr>
                         <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">現住所</td>
-                            <td class="p-1.5 font-medium" id="view_rep_address" colspan="3">-</td>
+                            <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">現住所</td>
+                            <td class="p-1 font-medium" id="view_rep_address" colspan="3">-</td>
                         </tr>
                         <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">連絡先（携帯）</td>
-                            <td class="p-1.5 font-medium" id="view_rep_phone">-</td>
-                            <td class="p-1.5 bg-gray-50 font-bold border-l border-r border-gray-900">メール</td>
-                            <td class="p-1.5 font-medium" id="view_rep_email">-</td>
+                            <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">連絡先（携帯）</td>
+                            <td class="p-1 font-medium" id="view_rep_phone">-</td>
+                            <td class="p-1 bg-gray-50 font-bold border-l border-r border-gray-900">メール</td>
+                            <td class="p-1 font-medium" id="view_rep_email">-</td>
                         </tr>
                         <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">緊急連絡先①</td>
-                            <td class="p-1.5 font-medium" id="view_rep_emergency1">-</td>
-                            <td class="p-1.5 bg-gray-50 font-bold border-l border-r border-gray-900">緊急連絡先②</td>
-                            <td class="p-1.5 font-medium" id="view_rep_emergency2">-</td>
+                            <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">緊急連絡先①</td>
+                            <td class="p-1 font-medium" id="view_rep_emergency1">-</td>
+                            <td class="p-1 bg-gray-50 font-bold border-l border-r border-gray-900">緊急連絡先②</td>
+                            <td class="p-1 font-medium" id="view_rep_emergency2">-</td>
                         </tr>
                         <tr>
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">通勤手段方法</td>
-                            <td class="p-1.5 font-medium" id="view_rep_commute" colspan="3">-</td>
+                            <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">通勤手段方法</td>
+                            <td class="p-1 font-medium" id="view_rep_commute" colspan="3">-</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <!-- 2. 採用条件（概要）★ここに勤務時間・休日・休暇情報をフル追加 -->
-                <h3 class="font-bold text-[11px] bg-gray-800 text-white px-2 py-0.5 mb-1.5">2. 採用条件（概要）</h3>
-                <table class="w-full border-collapse border border-gray-900 text-[9px] mb-3">
+                <!-- 2. 採用条件（概要） -->
+                <h3 class="font-bold text-[10px] bg-gray-800 text-white px-2 py-0.5 mb-1">2. 採用条件（概要）</h3>
+                <table class="w-full border-collapse border border-gray-900 text-[8.5px] mb-2.5">
                     <tbody>
                         <tr class="border-b border-gray-900">
-                            <td class="w-1/4 p-1.5 bg-gray-50 font-bold border-r border-gray-900">配属会社 / 勤務地</td>
-                            <td class="p-1.5 font-medium"><span id="view_rep_dept">-</span> / <span id="view_rep_place">-</span></td>
+                            <td class="w-1/4 p-1 bg-gray-50 font-bold border-r border-gray-900">配属会社 / 勤務地</td>
+                            <td class="p-1 font-medium"><span id="view_rep_dept">-</span> / <span id="view_rep_place">-</span></td>
                         </tr>
                         <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">職種（従事業務）</td>
-                            <td class="p-1.5 font-bold text-emerald-900" id="view_rep_roles">-</td>
+                            <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">職種（従事業務）</td>
+                            <td class="p-1 font-bold text-emerald-900" id="view_rep_roles">-</td>
                         </tr>
                         <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">雇い入れ予定日</td>
-                            <td class="p-1.5 font-medium" id="view_rep_hire_date">-</td>
+                            <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">雇い入れ予定日</td>
+                            <td class="p-1 font-medium" id="view_rep_hire_date">-</td>
                         </tr>
-                        <!-- ⏳ 追加項目：就業時間等 -->
                         <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">就業時間詳細</td>
-                            <td class="p-1.5 font-medium">
+                            <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">就業時間詳細</td>
+                            <td class="p-1 font-medium">
                                 <div id="view_rep_hours_list" class="space-y-0.5"></div>
                                 <div id="view_rep_hour_memo" class="text-[8px] text-gray-600 italic"></div>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">残業（所定外労働）</td>
-                            <td class="p-1.5 font-medium text-gray-700" id="view_rep_overtimeWork">-</td>
+                            <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">残業（所定外労働）</td>
+                            <td class="p-1 font-medium text-gray-700" id="view_rep_overtimeWork">-</td>
                         </tr>
                         <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">休日規定</td>
-                            <td class="p-1.5 whitespace-pre-wrap font-medium text-gray-700" id="view_rep_holidays">-</td>
+                            <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">休日規定</td>
+                            <td class="p-1 whitespace-pre-wrap font-medium text-gray-700" id="view_rep_holidays">-</td>
                         </tr>
                         <tr class="border-b border-gray-900">
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">休暇規定</td>
-                            <td class="p-1.5 whitespace-pre-wrap font-medium text-gray-700" id="view_rep_vacations">-</td>
+                            <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">休暇規定</td>
+                            <td class="p-1 whitespace-pre-wrap font-medium text-gray-700" id="view_rep_vacations">-</td>
                         </tr>
                         <tr>
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">決定給与条件</td>
-                            <td class="p-1.5 font-medium">
+                            <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">決定給与条件</td>
+                            <td class="p-1 font-medium">
                                 通常時給/月給： <span id="view_rep_salary" class="font-bold text-slate-900">-</span> 
-                                <span class="text-[9px] text-gray-500 block mt-0.5">（研修：<span id="view_rep_training">-</span>）</span>
+                                <span class="text-[8px] text-gray-500 block mt-0.5">（研修：<span id="view_rep_training">-</span>）</span>
                             </td>
                         </tr>
                     </tbody>
                 </table>
 
                 <!-- 3. 選考・面接状況 -->
-                <h3 class="font-bold text-[11px] bg-gray-800 text-white px-2 py-0.5 mb-1.5">3. 選考・面接状況</h3>
-                <table class="w-full border-collapse border border-gray-900 text-[9px]">
+                <h3 class="font-bold text-[10px] bg-gray-800 text-white px-2 py-0.5 mb-1">3. 選考・面接状況</h3>
+                <table class="w-full border-collapse border border-gray-900 text-[8.5px]">
                     <tbody>
                         <tr class="border-b border-gray-900">
-                            <td class="w-1/4 p-1.5 bg-gray-50 font-bold border-r border-gray-900">面接実施日</td>
-                            <td class="p-1.5 font-medium" id="view_rep_interview_date">-</td>
-                            <td class="w-1/4 p-1.5 bg-gray-50 font-bold border-l border-r border-gray-900">面接対応者</td>
-                            <td class="p-1.5 font-medium" id="view_rep_interviewer">-</td>
+                            <td class="w-1/4 p-1 bg-gray-50 font-bold border-r border-gray-900">面接実施日</td>
+                            <td class="p-1 font-medium" id="view_rep_interview_date">-</td>
+                            <td class="w-1/4 p-1 bg-gray-50 font-bold border-l border-r border-gray-900">面接対応者</td>
+                            <td class="p-1 font-medium" id="view_rep_interviewer">-</td>
                         </tr>
                         <tr>
-                            <td class="p-1.5 bg-gray-50 font-bold border-r border-gray-900">選考理由・評価メモ</td>
-                            <td class="p-1.5 whitespace-pre-wrap font-medium" id="view_rep_interview_notes" colspan="3" style="min-height: 45px;">-</td>
+                            <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">選考理由・評価メモ</td>
+                            <td class="p-1 whitespace-pre-wrap font-medium" id="view_rep_interview_notes" colspan="3" style="min-height: 40px;">-</td>
                         </tr>
                     </tbody>
                 </table>
@@ -635,7 +670,6 @@
             document.getElementById('view_roles').innerText = rolesStr;
             document.getElementById('view_rep_roles').innerText = rolesStr;
 
-            // ⏳ 就業時間プロセスの同期（通知書＆報告書の両方に反映）
             const h1 = document.getElementById('hours1').value;
             const h2 = document.getElementById('hours2').value;
             const h3 = document.getElementById('hours3').value;
@@ -655,7 +689,6 @@
             document.getElementById('view_hour_memo').innerText = hMemo;
             document.getElementById('view_rep_hour_memo').innerText = hMemo;
 
-            // 残業、休日、休暇の同期（雇用報告書側にも連動）
             const ovTime = document.getElementById('overtimeWork').value || '-';
             const hDays = document.getElementById('holidays').value || '-';
             const vCations = document.getElementById('vacations').value || '-';
