@@ -173,6 +173,16 @@
                             </div>
                             <textarea id="period" rows="2" class="w-full p-2 border rounded focus:ring-1 focus:ring-emerald-500 outline-none font-sans leading-relaxed">期間の定めなし（※有期契約の場合は「令和X年X月X日 〜 令和X年X月X日」および更新基準を明記）&#10;【更新の上限】更新回数および通算契約期間の上限なし。</textarea>
                         </div>
+                        <div class="md:col-span-2">
+                            <label class="block font-bold text-gray-600 mb-1">契約更新の有無</label>
+                            <select id="contractRenewal" class="w-full p-2 border rounded focus:ring-1 focus:ring-emerald-500 outline-none bg-white">
+                                <option value="">選択してください</option>
+                                <option value="更新する">更新する</option>
+                                <option value="更新する場合がある">更新する場合がある</option>
+                                <option value="更新しない">更新しない</option>
+                                <option value="本人が希望する場合は更新する">本人が希望する場合は更新する</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -335,6 +345,10 @@
                             <tr class="border-b border-gray-900">
                                 <td class="w-1/4 p-1 bg-gray-50 font-bold border-r border-gray-900">労働契約の期間</td>
                                 <td class="p-1 whitespace-pre-wrap font-medium" id="view_period">-</td>
+                            </tr>
+                            <tr class="border-b border-gray-900">
+                                <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">契約更新の有無</td>
+                                <td class="p-1 font-medium" id="view_contract_renewal">-</td>
                             </tr>
                             <tr class="border-b border-gray-900">
                                 <td class="p-1 bg-gray-50 font-bold border-r border-gray-900">就業の場所</td>
@@ -639,6 +653,7 @@
             });
 
             document.getElementById('period').value = data.period || '';
+            document.getElementById('contractRenewal').value = data.contractRenewal || '';
             document.getElementById('attendanceDays').value = data.attendanceDays || '';
             document.getElementById('overtimeWork').value = data.overtimeWork || '有（業務都合により、所定外労働を命じることがある。月平均10時間程度）';
             document.getElementById('hours1').value = data.hours1 || '';
@@ -682,6 +697,7 @@
             document.getElementById('view_rep_commute').innerText = document.getElementById('commuteMethod').value || '-';
 
             document.getElementById('view_period').innerText = document.getElementById('period').value || '-';
+            document.getElementById('view_contract_renewal').innerText = document.getElementById('contractRenewal').value || '-';
             
             const placeVal = document.getElementById('place').value || '-';
             document.getElementById('view_place').innerText = placeVal;
@@ -787,6 +803,7 @@
                 changeScope: document.getElementById('changeScope').value,
                 roles: checkedRoles,
                 period: document.getElementById('period').value,
+                contractRenewal: document.getElementById('contractRenewal').value,
                 attendanceDays: document.getElementById('attendanceDays').value,
                 overtimeWork: document.getElementById('overtimeWork').value,
                 hours1: document.getElementById('hours1').value,
