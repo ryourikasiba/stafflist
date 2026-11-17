@@ -146,6 +146,10 @@
                                 <option value="retired">🔴 退職</option>
                             </select>
                         </div>
+                        <div>
+                            <label class="block font-bold text-gray-600 mb-1">労働条件通知書の通知日（任意）</label>
+                            <input type="date" id="noticeDate" class="w-full p-2 border rounded focus:ring-1 focus:ring-emerald-500 outline-none">
+                        </div>
                         
                         <div class="md:col-span-2">
                             <label class="block font-bold text-gray-600 mb-1">従事すべき業務の変更の範囲</label>
@@ -577,7 +581,6 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             const todayStr = new Date().toLocaleDateString('ja-JP');
-            document.getElementById('view_notify_date').innerText = todayStr;
             document.getElementById('view_report_date').innerText = todayStr;
 
             const editTarget = localStorage.getItem('edit_target');
@@ -644,6 +647,7 @@
             document.getElementById('hireDate').value = data.hireDate || '';
             document.getElementById('place').value = data.place || '本社工場';
             document.getElementById('status').value = data.status || 'active';
+            document.getElementById('noticeDate').value = data.noticeDate || '';
             document.getElementById('changeScope').value = data.changeScope || '就業場所：会社の定める場所 ／ 従事すべき業務：会社の定める業務（原則変更なし）';
             
             const roles = data.roles || [];
@@ -685,6 +689,9 @@
 
             document.getElementById('view_company_name').innerText = document.getElementById('dept').value;
             document.getElementById('view_rep_dept').innerText = document.getElementById('dept').value;
+
+            const noticeDateVal = document.getElementById('noticeDate').value;
+            document.getElementById('view_notify_date').innerText = noticeDateVal ? new Date(noticeDateVal).toLocaleDateString('ja-JP') : '-';
 
             const birthVal = document.getElementById('birth').value;
             document.getElementById('view_rep_birth').innerText = birthVal ? new Date(birthVal).toLocaleDateString('ja-JP') : '-';
@@ -800,6 +807,7 @@
                 hireDate: document.getElementById('hireDate').value,
                 place: document.getElementById('place').value,
                 status: document.getElementById('status').value,
+                noticeDate: document.getElementById('noticeDate').value,
                 changeScope: document.getElementById('changeScope').value,
                 roles: checkedRoles,
                 period: document.getElementById('period').value,
